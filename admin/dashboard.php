@@ -17,7 +17,7 @@ $stmt = $pdo->query("SELECT COUNT(*) as pending FROM users WHERE status_konfirma
 $pending_users = $stmt->fetch(PDO::FETCH_ASSOC)['pending'];
 
 $stmt = $pdo->query("SELECT COUNT(*) as total_berita FROM berita");
-$total_berita = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$total_berita = $stmt->fetch(PDO::FETCH_ASSOC)['total_berita'];
 
 // Get today's queues by poli
 $today = date('Y-m-d');
@@ -35,8 +35,7 @@ $today_queues = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $poli_counts = [
     'poli_gigi' => 0,
     'poli_gizi' => 0,
-    'poli_umum' => 0,
-    'ugd' => 0
+    'poli_umum' => 0
 ];
 
 foreach ($today_queues as $queue) {
@@ -95,6 +94,11 @@ foreach ($today_queues as $queue) {
                     <li>
                         <a href="antrian.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
                             <i class="fas fa-list-ol mr-3"></i>Antrian Poli
+                        </a>
+                    </li>
+                    <li>
+                        <a href="admin_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-user-cog mr-3"></i>Manajemen Admin
                         </a>
                     </li>
                 </ul>
@@ -164,7 +168,7 @@ foreach ($today_queues as $queue) {
             <!-- Antrian Hari Ini by Poli -->
             <div class="bg-white rounded-lg shadow p-6 mb-8">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Antrian Hari Ini per Poli</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="bg-green-50 p-4 rounded-lg">
                         <p class="font-medium">Poli Gigi</p>
                         <p class="text-2xl font-bold text-green-600"><?php echo $poli_counts['poli_gigi']; ?></p>
@@ -177,13 +181,10 @@ foreach ($today_queues as $queue) {
                         <p class="font-medium">Poli Umum</p>
                         <p class="text-2xl font-bold text-yellow-600"><?php echo $poli_counts['poli_umum']; ?></p>
                     </div>
-                    <div class="bg-red-50 p-4 rounded-lg">
-                        <p class="font-medium">UGD</p>
-                        <p class="text-2xl font-bold text-red-600"><?php echo $poli_counts['ugd']; ?></p>
-                    </div>
                 </div>
             </div>
             
+
             <!-- Recent Activities -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Aktivitas Terbaru</h2>

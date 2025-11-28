@@ -6,7 +6,7 @@ require_once 'includes/functions.php';
 // Redirect if already logged in
 if (isLoggedIn()) {
     if (isUserConfirmed()) {
-        header("Location: user/profile.php");
+        header("Location: index.php");
         exit();
     } else {
         $message = "Akun Anda belum dikonfirmasi. Silakan datang ke Puskesmas untuk konfirmasi.";
@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     // Reset login attempts
                     resetLoginAttempts($nik);
 
-                    // Redirect to profile
-                    header("Location: user/profile.php");
+                    // Redirect to homepage
+                    header("Location: index.php");
                     exit();
                 } else {
                     $error = "Akun Anda belum dikonfirmasi. Silakan datang ke Puskesmas untuk konfirmasi.";

@@ -38,6 +38,12 @@ require_once 'includes/functions.php';
     <!-- Artikel Detail -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4 max-w-4xl">
+            <div class="mb-6">
+                <a href="berita.php" class="inline-flex items-center text-green-600 hover:text-green-800 font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Kembali ke Berita
+                </a>
+            </div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <img src="https://images.unsplash.com/photo-1516559828984-fb3b99548b21?auto=format&fit=crop&w=1200" alt="Gejala Diabetes" class="w-full h-96 object-cover">
                 

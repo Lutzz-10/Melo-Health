@@ -30,7 +30,7 @@ if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per h
             $error = "Poli dan tanggal harus dipilih.";
         } elseif (strtotime($tanggal_antrian) < strtotime(date('Y-m-d'))) {
             $error = "Tanggal antrian tidak boleh sebelum hari ini.";
-        } elseif (!checkForDangerousContent($tanggal_antrian)) {
+        } elseif (checkForDangerousContent($tanggal_antrian)) {
             $error = "Input mengandung konten berbahaya.";
         } else {
             try {

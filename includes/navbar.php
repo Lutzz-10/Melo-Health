@@ -1,16 +1,24 @@
 <?php
-// Determine the base path based on the current directory level
-$base_path = '';
-if (strpos($_SERVER['REQUEST_URI'], '/poli/') !== false) {
+// Simple and robust approach: determine path based on the current script location
+// Check if the current page is in a subdirectory
+$request_path = $_SERVER['REQUEST_URI'];
+
+if (preg_match('@/poli/|/poli$@', $request_path)) {
+    // We're in the poli subdirectory
     $base_path = '../';
-} elseif (strpos($_SERVER['REQUEST_URI'], '/user/') !== false) {
+} else if (preg_match('@/user/|/user$@', $request_path)) {
+    // We're in the user subdirectory
     $base_path = '../';
-} elseif (strpos($_SERVER['REQUEST_URI'], '/admin/') !== false) {
-    $base_path = '../';
-} elseif (strpos($_SERVER['REQUEST_URI'], '/admin/berita/') !== false) {
+} else if (preg_match('@/admin/berita/@', $request_path)) {
+    // We're in the admin/berita subdirectory (nested)
     $base_path = '../../';
+} else if (preg_match('@/admin/|/admin$@', $request_path)) {
+    // We're in the admin subdirectory
+    $base_path = '../';
+} else {
+    // We're in the main directory (index.php, tentang.php, berita.php, etc.)
+    $base_path = '';
 }
-// Add more conditions as needed for other subdirectories
 
 // Check if user is logged in to determine navbar content
 $isLoggedIn = isset($_SESSION['user_id']);
@@ -34,7 +42,6 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                 <a href="<?php echo $base_path; ?>poli/poli-gigi.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
                 <a href="<?php echo $base_path; ?>poli/poli-gizi.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
                 <a href="<?php echo $base_path; ?>poli/poli-umum.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-                <a href="<?php echo $base_path; ?>poli/ugd.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Unit Gawat Darurat</a>
             </div>
         </div>
         <a href="<?php echo $base_path; ?>berita.php" class="text-gray-800 hover:text-green-600 font-medium">Berita</a>
@@ -76,7 +83,6 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             <a href="<?php echo $base_path; ?>poli/poli-gigi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
             <a href="<?php echo $base_path; ?>poli/poli-gizi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
             <a href="<?php echo $base_path; ?>poli/poli-umum.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-            <a href="<?php echo $base_path; ?>poli/ugd.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">UGD</a>
         </div>
         <a href="<?php echo $base_path; ?>berita.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Berita</a>
         <?php if ($isLoggedIn && $userConfirmed): ?>
