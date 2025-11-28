@@ -94,13 +94,18 @@ function getUserByNik($nik) {
 
 // Function to redirect user based on login status
 function redirectBasedOnLogin() {
+    // Only redirect if the user is on a page they shouldn't be on when logged in
+    $current_page = basename($_SERVER['PHP_SELF']);
+
     if (isLoggedIn()) {
-        if (isUserConfirmed()) {
-            header("Location: user/profile.php");
-            exit();
-        } else {
-            // If user is not confirmed, show a message
-            return "Akun Anda belum dikonfirmasi. Silakan datang ke Puskesmas untuk konfirmasi.";
+        if ($current_page === 'login.php' || $current_page === 'register.php') {
+            if (isUserConfirmed()) {
+                header("Location: index.php");
+                exit();
+            } else {
+                // If user is not confirmed, show a message
+                return "Akun Anda belum dikonfirmasi. Silakan datang ke Puskesmas untuk konfirmasi.";
+            }
         }
     }
     return false;

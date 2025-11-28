@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'includes/config.php';
-require_once 'includes/functions.php';
+require_once '../includes/config.php';
+require_once '../includes/functions.php';
 
 // Check if user is logged in and confirmed
 if (!isLoggedIn() || !isUserConfirmed()) {
@@ -243,7 +243,9 @@ $csrf_token = generateCSRFToken();
                 <div>
                     <div class="bg-gray-50 rounded-lg shadow-md p-6 mb-8">
                         <div class="flex items-center mb-6">
-                            <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
+                            <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-500 text-xl"></i>
+                            </div>
                             <div class="ml-4">
                                 <h3 class="text-lg font-bold text-gray-800"><?php echo htmlspecialchars($user['nama']); ?></h3>
                                 <p class="text-gray-600"><?php echo htmlspecialchars($user['nik']); ?></p>
@@ -251,19 +253,19 @@ $csrf_token = generateCSRFToken();
                         </div>
                         
                         <div class="space-y-4">
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-envelope mr-3"></i>
-                                <span><?php echo htmlspecialchars($user['nik']); ?>@melohealth.com</span>
+                            <div class="flex items-start text-gray-600">
+                                <i class="fas fa-envelope mt-1 mr-3"></i>
+                                <span class="break-words"><?php echo htmlspecialchars($user['nik']); ?>@melohealth.com</span>
                             </div>
-                            
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-phone mr-3"></i>
+
+                            <div class="flex items-start text-gray-600">
+                                <i class="fas fa-phone mt-1 mr-3"></i>
                                 <span><?php echo htmlspecialchars($user['no_hp']); ?></span>
                             </div>
-                            
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-map-marker-alt mr-3"></i>
-                                <span><?php echo htmlspecialchars($user['alamat']); ?></span>
+
+                            <div class="flex items-start text-gray-600">
+                                <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                                <span class="break-words"><?php echo htmlspecialchars($user['alamat']); ?></span>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,7 @@
+2025-11-28 07:58:23 - Security Event: user_confirmed - IP: ::1 - Details: Admin: Admin Puskesmas, User ID: 2, NIK: 1234567812345678
+2025-11-28 08:00:05 - Security Event: user_confirmed - IP: ::1 - Details: Admin: Ethan Timm, User ID: 3, NIK: 3301231231231234
+2025-11-28 08:19:14 - Security Event: queue_completed - IP: ::1 - Details: Admin: Ethan Timm, Queue ID: 1, Number: A001, User: Egie Hariansyah
+2025-11-28 08:19:16 - Security Event: queue_completed - IP: ::1 - Details: Admin: Ethan Timm, Queue ID: 2, Number: A001, User: Egie Hariansyah
+2025-11-28 08:19:19 - Security Event: queue_completed - IP: ::1 - Details: Admin: Ethan Timm, Queue ID: 2, Number: A001, User: Egie Hariansyah
+2025-11-28 08:21:10 - Security Event: queue_completed - IP: ::1 - Details: Admin: Ethan Timm, Queue ID: 2, Number: A001, User: Egie Hariansyah
+2025-11-28 08:47:31 - Security Event: admin_created - IP: ::1 - Details: Admin: Ethan Timm created new admin: marsel

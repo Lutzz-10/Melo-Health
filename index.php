@@ -2,8 +2,7 @@
 session_start();
 require_once 'includes/functions.php';
 
-// Check if user is redirected from login with a message
-$message = redirectBasedOnLogin();
+// No redirect should happen on the homepage for logged-in users
 ?>
 
 <!DOCTYPE html>
@@ -45,7 +44,7 @@ $message = redirectBasedOnLogin();
     <section id="layanan" class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Layanan Unggulan Kami</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-tooth text-green-600 text-2xl"></i>
@@ -70,13 +69,6 @@ $message = redirectBasedOnLogin();
                     <p class="text-gray-600">Pemeriksaan kesehatan umum dan pengobatan dasar.</p>
                 </div>
                 
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
-                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-ambulance text-green-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-gray-800">Unit Gawat Darurat</h3>
-                    <p class="text-gray-600">Pelayanan darurat 24 jam untuk kondisi kritis.</p>
-                </div>
             </div>
         </div>
     </section>
@@ -137,7 +129,6 @@ $message = redirectBasedOnLogin();
                         <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
                         <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
                         <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
-                        <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
                     </ul>
                 </div>
                 
