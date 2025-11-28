@@ -85,6 +85,8 @@ $csrf_token = generateCSRFToken();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ambil Antrian - Melo Health</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/images/melohealth.jpg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->

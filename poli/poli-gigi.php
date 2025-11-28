@@ -6,10 +6,12 @@ require_once '../includes/navbar.php';
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poli Gigi - Melo Health</title>
+    <link rel="icon" type="image/x-icon" href="../assets/images/melohealth.jpg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
@@ -17,6 +19,7 @@ require_once '../includes/navbar.php';
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+
 <body class="bg-gray-50">
 
     <!-- Page Header -->
@@ -78,8 +81,8 @@ require_once '../includes/navbar.php';
                         <div class="bg-gray-50 p-6 rounded-lg shadow-md">
                             <h3 class="text-xl font-bold mb-3 text-gray-800">Jam Operasional</h3>
                             <p class="text-gray-600 mb-4">Senin - Jumat: 07:00 - 16:00<br>
-                            Sabtu: 08:00 - 14:00<br>
-                            Minggu: Libur</p>
+                                Sabtu: 08:00 - 14:00<br>
+                                Minggu: Libur</p>
 
                             <h3 class="text-xl font-bold mb-3 text-gray-800">Prosedur Pelayanan</h3>
                             <ol class="list-decimal pl-5 space-y-2 text-gray-600">
@@ -286,8 +289,13 @@ require_once '../includes/navbar.php';
 
         // Set today's date in the modal
         const today = new Date();
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        };
         document.getElementById('tanggalAntrian').textContent = today.toLocaleDateString('id-ID', options);
     </script>
 </body>
+
 </html>
