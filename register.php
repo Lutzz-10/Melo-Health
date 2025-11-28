@@ -127,7 +127,7 @@ if (!checkRateLimit('register', 5, 3600)) { // Max 5 registrations per hour
             </div>
 
             <div class="mb-6">
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 hover:scale-105 text-white font-bold py-3 px-4 rounded-lg transition-all duration-500 ease-in-out">
                     Daftar
                 </button>
             </div>

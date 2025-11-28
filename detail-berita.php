@@ -1,6 +1,40 @@
 <?php
 session_start();
 require_once 'includes/functions.php';
+
+// Ambil ID berita dari URL
+$article_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+// Jika tidak ada ID atau ID tidak valid, redirect ke halaman berita
+if ($article_id <= 0) {
+    header("Location: berita.php");
+    exit();
+}
+
+// Ambil data berita dari database
+try {
+    $stmt = $pdo->prepare("SELECT * FROM berita WHERE id = ?");
+    $stmt->execute([$article_id]);
+    $article = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Jika berita tidak ditemukan, redirect ke halaman berita
+    if (!$article) {
+        header("Location: berita.php");
+        exit();
+    }
+} catch (PDOException $e) {
+    header("Location: berita.php");
+    exit();
+}
+
+// Ambil beberapa berita terkait (berita selain yang sedang dibaca)
+try {
+    $stmt_related = $pdo->prepare("SELECT * FROM berita WHERE id != ? ORDER BY tanggal_publish DESC LIMIT 3");
+    $stmt_related->execute([$article_id]);
+    $related_articles = $stmt_related->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $related_articles = [];
+}
 ?>
 
 <!DOCTYPE html>
@@ -8,7 +42,7 @@ require_once 'includes/functions.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Berita - Melo Health</title>
+    <title><?php echo htmlspecialchars($article['judul']); ?> - Melo Health</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
@@ -18,23 +52,7 @@ require_once 'includes/functions.php';
 </head>
 <body class="bg-gray-50">
     <?php include 'includes/navbar.php'; ?>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-40">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="index.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Beranda</a>
-            <a href="tentang.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Tentang</a>
-            <div class="pl-3 border-l-2 border-green-500">
-                <a href="poli/poli-gigi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
-                <a href="poli/poli-gizi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
-                <a href="poli/poli-umum.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-                <a href="poli/ugd.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">UGD</a>
-            </div>
-            <a href="berita.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Berita</a>
-            <a href="login.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Login</a>
-        </div>
-    </div>
-    
+
     <!-- Artikel Detail -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4 max-w-4xl">
@@ -45,81 +63,47 @@ require_once 'includes/functions.php';
                 </a>
             </div>
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src="https://images.unsplash.com/photo-1516559828984-fb3b99548b21?auto=format&fit=crop&w=1200" alt="Gejala Diabetes" class="w-full h-96 object-cover">
-                
+                <img src="<?php echo !empty($article['gambar']) ? $article['gambar'] : 'https://images.unsplash.com/photo-1516559828984-fb3b99548b21?auto=format&fit=crop&w=1200'; ?>"
+                     alt="<?php echo htmlspecialchars($article['judul']); ?>"
+                     class="w-full h-96 object-cover">
+
                 <div class="p-8">
                     <div class="flex items-center text-gray-500 mb-4">
-                        <span>15 November 2025</span>
+                        <span><?php echo date('d F Y', strtotime($article['tanggal_publish'])); ?></span>
                         <span class="mx-2">•</span>
                         <span>Kesehatan Umum</span>
                     </div>
-                    
-                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Gejala Diabetes yang Perlu Diwaspadai</h1>
-                    
+
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6"><?php echo htmlspecialchars($article['judul']); ?></h1>
+
                     <div class="prose max-w-none text-gray-600 leading-relaxed">
-                        <p class="mb-4">Diabetes adalah penyakit kronis yang terjadi ketika tubuh tidak dapat memproduksi cukup insulin atau tidak dapat menggunakan insulin secara efektif. Kondisi ini menyebabkan kadar gula darah (glukosa) meningkat, yang dapat menyebabkan komplikasi serius jika tidak ditangani dengan baik.</p>
-                        
-                        <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-4">Gejala Umum Diabetes</h2>
-                        
-                        <p class="mb-4">Gejala diabetes bisa berkembang secara perlahan atau mendadak tergantung pada jenis diabetes yang diderita. Berikut adalah gejala umum yang perlu diwaspadai:</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">1. Sering Merasa Haus</h3>
-                        <p class="mb-4">Sering merasa haus (polidipsia) adalah salah satu gejala awal diabetes. Kadar gula darah yang tinggi menyebabkan ginjal bekerja lebih keras untuk menyaring dan menyerap kelebihan glukosa. Ketika ginjal tidak mampu menahan semua glukosa, gula berlebih ini dibuang ke dalam urine, bersama dengan cairan dari jaringan tubuh.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">2. Sering Buang Air Kecil</h3>
-                        <p class="mb-4">Peningkatan produksi urine (poliuria) terjadi karena ginjal mencoba mengeluarkan kelebihan gula dari darah. Kondisi ini sering kali meningkatkan frekuensi buang air kecil, terutama pada malam hari.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">3. Sering Merasa Lapar</h3>
-                        <p class="mb-4">Sering merasa lapar (polifagia) terjadi karena tubuh tidak dapat menggunakan glukosa sebagai sumber energi secara efektif. Meskipun sudah makan, tubuh mungkin merasa lemah karena sel-sel tidak mendapatkan glukosa yang dibutuhkan.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">4. Penurunan Berat Badan Secara Tidak Disengaja</h3>
-                        <p class="mb-4">Penurunan berat badan yang tidak disengaja terjadi karena tubuh mulai memecah otot dan lemak untuk mendapatkan energi ketika tidak dapat menggunakan glukosa. Ini biasanya terjadi pada diabetes tipe 1.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">5. Kelelahan dan Lemas</h3>
-                        <p class="mb-4">Karena sel-sel tidak menerima glukosa yang cukup untuk produksi energi, penderita diabetes sering merasa lelah dan lemas secara terus menerus.</p>
-                        
-                        <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-4">Jenis-Jenis Diabetes</h2>
-                        
-                        <p class="mb-4">Terdapat beberapa jenis diabetes, masing-masing dengan karakteristik dan penyebab yang berbeda:</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">Diabetes Tipe 1</h3>
-                        <p class="mb-4">Diabetes tipe 1 biasanya berkembang pada anak-anak dan remaja, meskipun bisa terjadi pada usia berapa pun. Pada kondisi ini, sistem kekebalan tubuh menyerang dan menghancurkan sel-sel pankreas yang menghasilkan insulin. Penderita diabetes tipe 1 perlu suntik insulin setiap hari untuk bertahan hidup.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">Diabetes Tipe 2</h3>
-                        <p class="mb-4">Diabetes tipe 2 adalah bentuk paling umum dari diabetes. Pada diabetes tipe 2, tubuh menghasilkan insulin tetapi tidak dapat menggunakannya secara efektif (resistensi insulin). Kondisi ini biasanya berkembang secara perlahan dan sering kali terkait dengan gaya hidup tidak sehat dan obesitas.</p>
-                        
-                        <h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">Diabetes Gestasional</h3>
-                        <p class="mb-4">Diabetes gestasional terjadi selama kehamilan ketika tubuh tidak dapat menghasilkan cukup insulin untuk mengatasi lonjakan gula darah yang meningkat. Kondisi ini biasanya hilang setelah melahirkan, tetapi meningkatkan risiko diabetes tipe 2 di masa depan.</p>
-                        
-                        <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-4">Pencegahan dan Penanganan</h2>
-                        
-                        <p class="mb-4">Pencegahan diabetes tipe 2 sangat penting dan bisa dilakukan dengan:</p>
-                        
-                        <ul class="list-disc pl-6 mb-4 space-y-2">
-                            <li>Mengontrol berat badan</li>
-                            <li>Rutin berolahraga</li>
-                            <li>Makan makanan seimbang</li>
-                            <li>Hindari merokok dan minum alkohol</li>
-                            <li>Rutin memeriksakan kesehatan</li>
-                        </ul>
-                        
-                        <p class="mb-4">Jika Anda mengalami salah satu atau lebih gejala di atas, segeralah berkonsultasi dengan dokter untuk mendapatkan pemeriksaan dan penanganan yang tepat. Deteksi dini sangat penting untuk mencegah komplikasi serius seperti penyakit jantung, stroke, gagal ginjal, dan kebutaan.</p>
-                        
-                        <p class="mb-4">Ingat, diabetes adalah kondisi yang bisa dikendalikan dengan pengobatan dan gaya hidup yang sehat. Jangan menunda-nunda kunjungan ke fasilitas kesehatan jika Anda merasa gejala tersebut muncul.</p>
+                        <?php echo nl2br(htmlspecialchars($article['konten'])); ?>
                     </div>
-                    
+
                     <div class="mt-10 pt-6 border-t border-gray-200">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Bagikan Artikel Ini</h3>
                         <div class="flex space-x-4">
-                            <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <?php
+                                $current_url = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                                $encoded_url = urlencode($current_url);
+                                $encoded_title = urlencode($article['judul']);
+                                $encoded_text = urlencode($article['judul'] . ' - ' . $current_url);
+                            ?>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $encoded_url; ?>"
+                               target="_blank"
+                               class="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-700 transition-colors">
                                 <i class="fab fa-facebook-f mr-2"></i>
                                 Facebook
                             </a>
-                            <a href="#" class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
+                            <a href="https://api.whatsapp.com/send?text=<?php echo $encoded_text; ?>"
+                               target="_blank"
+                               class="bg-green-600 text-white px-4 py-2 rounded-md flex items-center hover:bg-green-700 transition-colors">
                                 <i class="fab fa-whatsapp mr-2"></i>
                                 WhatsApp
                             </a>
-                            <a href="#" class="bg-blue-400 text-white px-4 py-2 rounded-md flex items-center">
+                            <a href="https://twitter.com/intent/tweet?text=<?php echo $encoded_title; ?>&url=<?php echo $encoded_url; ?>"
+                               target="_blank"
+                               class="bg-blue-400 text-white px-4 py-2 rounded-md flex items-center hover:bg-blue-500 transition-colors">
                                 <i class="fab fa-twitter mr-2"></i>
                                 Twitter
                             </a>
@@ -127,27 +111,32 @@ require_once 'includes/functions.php';
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-10 bg-gray-50 rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Artikel Terkait</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <?php foreach ($related_articles as $related_article): ?>
                     <div class="bg-white rounded-lg shadow p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Pentingnya Vaksinasi untuk Anak</h4>
-                        <p class="text-sm text-gray-600">Vaksinasi merupakan langkah penting dalam mencegah berbagai penyakit berbahaya pada anak.</p>
+                        <h4 class="font-bold text-gray-800 mb-2">
+                            <a href="detail-berita.php?id=<?php echo $related_article['id']; ?>"
+                               class="hover:text-green-600">
+                                <?php echo htmlspecialchars($related_article['judul']); ?>
+                            </a>
+                        </h4>
+                        <p class="text-sm text-gray-600"><?php echo substr(htmlspecialchars(strip_tags($related_article['konten'])), 0, 100) . '...'; ?></p>
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Tips Menjaga Kesehatan di Musim Penghujan</h4>
-                        <p class="text-sm text-gray-600">Berikut beberapa tips yang bisa Anda lakukan untuk menjaga kesehatan selama musim penghujan.</p>
+                    <?php endforeach; ?>
+
+                    <?php if (empty($related_articles)): ?>
+                    <div class="col-span-3 text-center text-gray-500 py-8">
+                        Tidak ada artikel terkait
                     </div>
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Manfaat Olahraga Rutin bagi Kesehatan</h4>
-                        <p class="text-sm text-gray-600">Melakukan olahraga secara rutin memiliki banyak manfaat bagi kesehatan fisik dan mental.</p>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-4">
@@ -156,7 +145,7 @@ require_once 'includes/functions.php';
                     <h3 class="text-xl font-bold mb-4">Melo Health</h3>
                     <p class="text-gray-400">Sistem informasi dan antrian Puskesmas yang efisien dan mudah diakses oleh masyarakat.</p>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
@@ -166,7 +155,7 @@ require_once 'includes/functions.php';
                         <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Tautan</h4>
                     <ul class="space-y-2">
@@ -176,7 +165,7 @@ require_once 'includes/functions.php';
                         <li><a href="login.php" class="text-gray-400 hover:text-white transition duration-300">Login</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Kontak</h4>
                     <ul class="space-y-2 text-gray-400">
@@ -195,21 +184,14 @@ require_once 'includes/functions.php';
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400">
                 <p>&copy; 2025 Melo Health. Semua hak dilindungi.</p>
             </div>
         </div>
     </footer>
-    
+
     <!-- JavaScript -->
     <script src="assets/js/script.js"></script>
-    <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-    </script>
 </body>
 </html>

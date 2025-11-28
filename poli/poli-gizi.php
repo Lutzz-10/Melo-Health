@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/functions.php';
+require_once '../includes/navbar.php';
 ?>
 
 <!DOCTYPE html>
@@ -17,24 +18,7 @@ require_once '../includes/functions.php';
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="bg-gray-50">
-    <?php include '../includes/navbar.php'; ?>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-40">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="index.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Beranda</a>
-            <a href="tentang.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Tentang</a>
-            <div class="pl-3 border-l-2 border-green-500">
-                <a href="poli/poli-gigi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
-                <a href="poli/poli-gizi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
-                <a href="poli/poli-umum.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-                <a href="poli/ugd.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">UGD</a>
-            </div>
-            <a href="berita.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Berita</a>
-            <a href="login.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Login</a>
-        </div>
-    </div>
-    
+
     <!-- Page Header -->
     <section class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-16">
         <div class="container mx-auto px-4 text-center">
@@ -42,7 +26,7 @@ require_once '../includes/functions.php';
             <p class="text-xl max-w-2xl mx-auto">Konsultasi gizi dan program diet sehat untuk hidup lebih sehat dan bugar.</p>
         </div>
     </section>
-    
+
     <!-- Poli Content -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
@@ -88,7 +72,7 @@ require_once '../includes/functions.php';
                             </ul>
                         </div>
                     </div>
-                    
+
                     <div class="mb-8">
                         <h2 class="text-2xl font-bold mb-4 text-gray-800">Informasi Umum</h2>
                         <div class="bg-gray-50 p-6 rounded-lg shadow-md">
@@ -96,7 +80,7 @@ require_once '../includes/functions.php';
                             <p class="text-gray-600 mb-4">Senin - Jumat: 08:00 - 15:00<br>
                             Sabtu: 08:00 - 12:00<br>
                             Minggu: Libur</p>
-                            
+
                             <h3 class="text-xl font-bold mb-3 text-gray-800">Prosedur Pelayanan</h3>
                             <ol class="list-decimal pl-5 space-y-2 text-gray-600">
                                 <li>Registrasi di meja pendaftaran</li>
@@ -107,7 +91,7 @@ require_once '../includes/functions.php';
                                 <li>Pembuatan program diet sesuai kebutuhan</li>
                                 <li>Pembayaran di kasir</li>
                             </ol>
-                            
+
                             <h3 class="text-xl font-bold mt-6 mb-3 text-gray-800">Tips Pola Makan Sehat</h3>
                             <ul class="space-y-2 text-gray-600">
                                 <li>• Konsumsi makanan bergizi seimbang</li>
@@ -119,7 +103,7 @@ require_once '../includes/functions.php';
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Sidebar -->
                 <div>
                     <!-- Jadwal Dokter -->
@@ -127,34 +111,34 @@ require_once '../includes/functions.php';
                         <h3 class="text-xl font-bold mb-4 text-gray-800">Jadwal Dokter</h3>
                         <div class="space-y-4">
                             <div class="flex items-center">
-                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea811ec6?auto=format&fit=crop&w=100" alt="Ns. Rina Kartika" class="w-16 h-16 rounded-full object-cover mr-4">
+                                <img src="../assets/images/seli.png" alt="Ns. Seli" class="w-16 h-16 rounded-full object-cover mr-4">
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Ns. Rina Kartika</h4>
+                                    <h4 class="font-bold text-gray-800">Ns. Seli</h4>
                                     <p class="text-gray-600">Senin, Rabu, Jumat</p>
                                     <p class="text-gray-600">08:00 - 14:00</p>
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-center">
-                                <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=100" alt="Dr. Andi Pratama" class="w-16 h-16 rounded-full object-cover mr-4">
+                                <img src="../assets/images/egie.png" alt="Dr. Egie" class="w-16 h-16 rounded-full object-cover mr-4">
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Dr. Andi Pratama</h4>
+                                    <h4 class="font-bold text-gray-800">Dr. Egie</h4>
                                     <p class="text-gray-600">Selasa, Kamis</p>
                                     <p class="text-gray-600">08:00 - 14:00</p>
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-center">
-                                <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=100" alt="Sst. Maya Sari" class="w-16 h-16 rounded-full object-cover mr-4">
+                                <img src="../assets/images/lutz.png" alt="Sst. Lutfi Maulida" class="w-16 h-16 rounded-full object-cover mr-4">
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Sst. Maya Sari</h4>
+                                    <h4 class="font-bold text-gray-800">Sst. Lutfi Maulida</h4>
                                     <p class="text-gray-600">Sabtu</p>
                                     <p class="text-gray-600">08:00 - 12:00</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Ambil Antrian Button -->
                     <div class="bg-green-50 rounded-lg shadow-md p-6">
                         <h3 class="text-xl font-bold mb-4 text-gray-800">Ambil Nomor Antrian</h3>
@@ -163,7 +147,7 @@ require_once '../includes/functions.php';
                             Ambil Nomor Antrian
                         </button>
                     </div>
-                    
+
                     <!-- Info Penting -->
                     <div class="bg-blue-50 rounded-lg shadow-md p-6 mt-8">
                         <h3 class="text-xl font-bold mb-4 text-gray-800">Info Penting</h3>
@@ -186,7 +170,7 @@ require_once '../includes/functions.php';
             </div>
         </div>
     </section>
-    
+
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-4">
@@ -195,7 +179,7 @@ require_once '../includes/functions.php';
                     <h3 class="text-xl font-bold mb-4">Melo Health</h3>
                     <p class="text-gray-400">Sistem informasi dan antrian Puskesmas yang efisien dan mudah diakses oleh masyarakat.</p>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
@@ -205,7 +189,7 @@ require_once '../includes/functions.php';
                         <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Tautan</h4>
                     <ul class="space-y-2">
@@ -215,7 +199,7 @@ require_once '../includes/functions.php';
                         <li><a href="login.php" class="text-gray-400 hover:text-white transition duration-300">Login</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="text-lg font-bold mb-4">Kontak</h4>
                     <ul class="space-y-2 text-gray-400">
@@ -234,13 +218,13 @@ require_once '../includes/functions.php';
                     </ul>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400">
                 <p>&copy; 2025 Melo Health. Semua hak dilindungi.</p>
             </div>
         </div>
     </footer>
-    
+
     <!-- Modal -->
     <div id="antrianModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
@@ -251,12 +235,12 @@ require_once '../includes/functions.php';
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                
+
                 <div class="mb-6">
                     <p class="text-gray-600 mb-2">Tanggal: <span id="tanggalAntrian" class="font-medium">22 November 2025</span></p>
                     <p class="text-gray-600">Poli: <span class="font-medium">Poli Gizi</span></p>
                 </div>
-                
+
                 <div class="flex justify-end space-x-3">
                     <button onclick="tutupModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100">
                         Batal
@@ -268,9 +252,9 @@ require_once '../includes/functions.php';
             </div>
         </div>
     </div>
-    
+
     <!-- JavaScript -->
-    <script src="assets/js/script.js"></script>
+    <script src="../assets/js/script.js"></script>
     <script>
         // Mobile menu toggle
         document.getElementById('mobile-menu-button').addEventListener('click', function() {

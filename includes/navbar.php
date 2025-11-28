@@ -26,9 +26,11 @@ $userConfirmed = isset($_SESSION['user_confirmed']) && $_SESSION['user_confirmed
 $isAdminLoggedIn = isset($_SESSION['admin_id']);
 ?>
 
-<nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center">
-        <h1 class="text-xl font-bold text-green-600">Melo Health</h1>
+<nav class="bg-white shadow-md py-3 px-6 flex justify-between items-center sticky top-0 z-50">    <div class="flex items-center">
+        <a href="<?php echo $base_path; ?>index.php" class="flex items-center">
+            <img src="<?php echo $base_path; ?>assets/images/melohealth.jpg" alt="Melo Health Logo" class="h-12">
+            <span class="sr-only">Melo Health</span>
+        </a>
     </div>
     
     <div class="hidden md:flex space-x-8">
@@ -54,7 +56,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                 <button id="user-menu-button" class="flex items-center text-gray-800 hover:text-green-600">
                     <i class="fas fa-user-circle text-2xl"></i>
                 </button>
-                <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" style="top: 100%; min-width: max-content;">
                     <a href="<?php echo $base_path; ?>user/profile.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Profile</a>
                     <a href="<?php echo $base_path; ?>logout.php" class="block px-4 py-2 text-gray-800 hover:bg-red-100">Logout</a>
                 </div>
@@ -96,28 +98,83 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
     </div>
 </div>
 
+<!-- Scroll to Top Button -->
+<div id="scrollToTop" class="fixed bottom-8 right-8 z-50" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+    <button onclick="scrollToTop()" class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg">
+        <i class="fas fa-arrow-up text-lg"></i>
+    </button>
+</div>
+
 <script>
-    // Mobile menu toggle
-    document.getElementById('mobile-menu-button').addEventListener('click', function() {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('hidden');
-    });
-    
-    // User menu toggle
-    if (document.getElementById('user-menu-button')) {
-        document.getElementById('user-menu-button').addEventListener('click', function() {
-            const menu = document.getElementById('user-menu');
-            menu.classList.toggle('hidden');
-        });
-        
-        // Close user menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenu = document.getElementById('user-menu');
-            const userButton = document.getElementById('user-menu-button');
-            
-            if (!userMenu.contains(event.target) && !userButton.contains(event.target)) {
-                userMenu.classList.add('hidden');
+    // Optimized and reliable approach
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                if (menu) {
+                    menu.classList.toggle('hidden');
+                }
+            });
+        }
+
+        // User menu toggle
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+
+        if (userMenuButton && userMenu) {
+            // Use direct style manipulation for more reliable behavior
+            userMenuButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Toggle visibility using display property for more reliable behavior
+                if (userMenu.style.display === 'none' || userMenu.classList.contains('hidden')) {
+                    userMenu.classList.remove('hidden');
+                    userMenu.style.display = 'block';
+                } else {
+                    userMenu.classList.add('hidden');
+                    userMenu.style.display = 'none';
+                }
+            });
+
+            // Close when clicking elsewhere
+            document.addEventListener('click', function(event) {
+                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.add('hidden');
+                    userMenu.style.display = 'none';
+                }
+            });
+        }
+
+        // Scroll to top functionality
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        if (scrollToTopBtn) {
+            // Show/hide scroll to top button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.style.opacity = '1';
+                    scrollToTopBtn.style.pointerEvents = 'auto';
+                } else {
+                    scrollToTopBtn.style.opacity = '0';
+                    scrollToTopBtn.style.pointerEvents = 'none';
+                }
+            });
+
+            // Show button immediately when page loads if already scrolled
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.style.opacity = '1';
+                scrollToTopBtn.style.pointerEvents = 'auto';
             }
+        }
+    });
+
+    // Function to scroll to top smoothly
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
         });
     }
 </script>
