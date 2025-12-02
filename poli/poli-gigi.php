@@ -258,12 +258,6 @@ require_once '../includes/navbar.php';
     <!-- JavaScript -->
     <script src="../assets/js/script.js"></script>
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-
         // Ambil antrian function
         function ambilAntrian() {
             // Check if user is logged in

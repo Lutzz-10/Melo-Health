@@ -39,7 +39,9 @@ try {
                 <h1 class="text-4xl md:text-5xl font-bold mb-4">Layanan Kesehatan Terbaik untuk Anda</h1>
                 <p class="text-xl mb-8">Melo Health menyediakan sistem informasi dan antrian Puskesmas yang efisien dan mudah diakses.</p>
                 <div class="flex space-x-4">
-                    <a href="register.php" class="bg-white text-green-600 hover:bg-gray-100 hover:scale-105 font-bold py-3 px-6 rounded-md transition-all duration-500 ease-in-out">Daftar Sekarang</a>
+                    <?php if (!isset($_SESSION['user_id']) || !$_SESSION['user_confirmed'] == 'confirmed'): ?>
+                        <a href="register.php" class="bg-white text-green-600 hover:bg-gray-100 hover:scale-105 font-bold py-3 px-6 rounded-md transition-all duration-500 ease-in-out">Daftar Sekarang</a>
+                    <?php endif; ?>
                     <a href="#layanan" class="bg-transparent border-2 border-white hover:bg-white/10 hover:scale-105 font-bold py-3 px-6 rounded-md transition-all duration-500 ease-in-out">Lihat Layanan</a>
                 </div>
             </div>

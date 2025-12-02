@@ -10,7 +10,7 @@ if (isLoggedIn()) {
 }
 
 // Rate limiting for registration
-if (!checkRateLimit('register', 5, 3600)) { // Max 5 registrations per hour
+if (!checkRateLimit('register', 100, 3600)) { // Max 100 registrations per hour
     $error = "Terlalu banyak permintaan registrasi. Silakan coba lagi nanti.";
 } else {
     $error = '';

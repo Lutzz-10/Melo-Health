@@ -1,6 +1,4 @@
 <?php
-// Cron job script to update expired queue statuses
-// This file should be called by a scheduled task (cron job) daily
 
 require_once '../includes/config.php';
 require_once '../includes/functions.php';

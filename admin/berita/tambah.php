@@ -83,6 +83,7 @@ $csrf_token = generateCSRFToken();
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,6 +97,7 @@ $csrf_token = generateCSRFToken();
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
+
 <body class="bg-gray-100">
     <!-- Admin Navbar -->
     <nav class="bg-white shadow-md">
@@ -103,18 +105,31 @@ $csrf_token = generateCSRFToken();
             <div class="flex items-center">
                 <h1 class="text-xl font-bold text-green-600">Admin Panel - Melo Health</h1>
             </div>
-            
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-700">Halo, <?php echo htmlspecialchars($_SESSION['admin_nama']); ?></span>
-                <a href="../../logout.php" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Logout</a>
+
+            <div class="flex items-center">
+                <div class="hidden md:block">
+                    <span class="text-gray-700">Halo, <?php echo htmlspecialchars($_SESSION['admin_nama']); ?></span>
+                    <a href="../../logout.php" class="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Logout</a>
+                </div>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-700 ml-4">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </nav>
-    
-    <!-- Admin Sidebar -->
+
+    <!-- Admin Sidebar and Main Content -->
     <div class="flex">
-        <div class="w-64 bg-white shadow-md min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-64 bg-white shadow-md min-h-screen fixed top-0 right-0 md:static z-40 transform translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-green-600">Admin Panel</h2>
+                    <button id="close-sidebar" class="md:hidden text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
                 <ul class="space-y-2">
                     <li>
                         <a href="../dashboard.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
@@ -136,26 +151,34 @@ $csrf_token = generateCSRFToken();
                             <i class="fas fa-list-ol mr-3"></i>Antrian Poli
                         </a>
                     </li>
+                    <li>
+                        <a href="../admin_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-user-cog mr-3"></i>Manajemen Admin
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
-        
+
+        <!-- Sidebar Overlay for mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 hidden transition-opacity duration-300 ease-in-out"></div>
+
         <!-- Main Content -->
         <div class="flex-1 p-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Tambah Berita Baru</h1>
-            
+
             <?php if (!empty($error)): ?>
                 <div class="mb-6 p-3 bg-red-100 text-red-700 rounded-lg">
                     <?php echo $error; ?>
                 </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($success)): ?>
                 <div class="mb-6 p-3 bg-green-100 text-green-700 rounded-lg">
                     <?php echo $success; ?>
                 </div>
             <?php endif; ?>
-            
+
             <div class="bg-white rounded-lg shadow p-8">
                 <form method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
@@ -192,8 +215,56 @@ $csrf_token = generateCSRFToken();
             </div>
         </div>
     </div>
-    
+
     <!-- JavaScript -->
     <script src="../../assets/js/script.js"></script>
+    <script>
+        // Mobile menu toggle for admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeSidebarButton = document.getElementById('close-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Show sidebar
+                    sidebar.classList.remove('translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+
+                    // Show overlay
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-0');
+                        overlay.classList.add('opacity-50');
+                    }, 10);
+                });
+
+                function closeSidebar() {
+                    // Hide sidebar
+                    sidebar.classList.add('translate-x-full');
+                    sidebar.classList.remove('translate-x-0');
+
+                    // Hide overlay
+                    overlay.classList.remove('opacity-50');
+                    setTimeout(() => {
+                        overlay.classList.add('opacity-0');
+                        overlay.classList.add('hidden');
+                    }, 300);
+                }
+
+                // Close sidebar when clicking on overlay
+                overlay.addEventListener('click', closeSidebar);
+
+                // Close sidebar when clicking on close button
+                if (closeSidebarButton) {
+                    closeSidebarButton.addEventListener('click', closeSidebar);
+                }
+            }
+        });
+    </script>
 </body>
+
 </html>

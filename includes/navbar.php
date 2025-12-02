@@ -26,13 +26,14 @@ $userConfirmed = isset($_SESSION['user_confirmed']) && $_SESSION['user_confirmed
 $isAdminLoggedIn = isset($_SESSION['admin_id']);
 ?>
 
-<nav class="bg-white shadow-md py-3 px-6 flex justify-between items-center sticky top-0 z-50">    <div class="flex items-center">
+<nav class="bg-white shadow-md py-3 px-6 flex justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center">
         <a href="<?php echo $base_path; ?>index.php" class="flex items-center">
             <img src="<?php echo $base_path; ?>assets/images/melohealth.jpg" alt="Melo Health Logo" class="h-12">
             <span class="sr-only">Melo Health</span>
         </a>
     </div>
-    
+
     <div class="hidden md:flex space-x-8">
         <a href="<?php echo $base_path; ?>index.php" class="text-gray-800 hover:text-green-600 font-medium">Beranda</a>
         <a href="<?php echo $base_path; ?>tentang.php" class="text-gray-800 hover:text-green-600 font-medium">Tentang</a>
@@ -48,11 +49,11 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         </div>
         <a href="<?php echo $base_path; ?>berita.php" class="text-gray-800 hover:text-green-600 font-medium">Berita</a>
     </div>
-    
-    <div>
+
+    <div class="flex items-center">
         <?php if ($isLoggedIn && $userConfirmed): ?>
             <!-- User menu when logged in -->
-            <div class="relative">
+            <div class="relative md:mr-4 hidden md:block">
                 <button id="user-menu-button" class="flex items-center text-gray-800 hover:text-green-600">
                     <i class="fas fa-user-circle text-2xl"></i>
                 </button>
@@ -63,21 +64,25 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
             </div>
         <?php elseif ($isAdminLoggedIn): ?>
             <!-- Admin menu when logged in -->
-            <a href="<?php echo $base_path; ?>admin/dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Admin Panel</a>
+            <a href="<?php echo $base_path; ?>admin/dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition duration-300 hidden md:block">
+                Admin Panel
+            </a>
         <?php else: ?>
             <!-- Login button when not logged in -->
-            <a href="<?php echo $base_path; ?>login.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Login</a>
+            <a href="<?php echo $base_path; ?>login.php" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition duration-300 hidden md:block">
+                Login
+            </a>
         <?php endif; ?>
+
+        <!-- Mobile menu button -->
+        <button id="hamburger-menu-btn" class="text-gray-800 ml-4 md:hidden lg:hidden xl:hidden 2xl:hidden" onclick="toggleMobileMenu(event)" style="cursor: pointer; user-select: none; position: relative; z-index: 9999;">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
     </div>
-    
-    <!-- Mobile menu button -->
-    <button id="mobile-menu-button" class="md:hidden text-gray-800">
-        <i class="fas fa-bars text-2xl"></i>
-    </button>
 </nav>
 
 <!-- Mobile Menu -->
-<div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-40">
+<div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-50" style="top: 100%;">
     <div class="px-2 pt-2 pb-3 space-y-1">
         <a href="<?php echo $base_path; ?>index.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Beranda</a>
         <a href="<?php echo $base_path; ?>tentang.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Tentang</a>
@@ -106,71 +111,76 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 </div>
 
 <script>
-    // Optimized and reliable approach
-    document.addEventListener('DOMContentLoaded', function() {
-        // Mobile menu toggle
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        if (mobileMenuButton) {
-            mobileMenuButton.addEventListener('click', function() {
-                const menu = document.getElementById('mobile-menu');
-                if (menu) {
-                    menu.classList.toggle('hidden');
-                }
-            });
+    function toggleMobileMenu(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
         }
 
-        // User menu toggle
-        const userMenuButton = document.getElementById('user-menu-button');
-        const userMenu = document.getElementById('user-menu');
-
-        if (userMenuButton && userMenu) {
-            // Use direct style manipulation for more reliable behavior
-            userMenuButton.addEventListener('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                // Toggle visibility using display property for more reliable behavior
-                if (userMenu.style.display === 'none' || userMenu.classList.contains('hidden')) {
-                    userMenu.classList.remove('hidden');
-                    userMenu.style.display = 'block';
-                } else {
-                    userMenu.classList.add('hidden');
-                    userMenu.style.display = 'none';
-                }
-            });
-
-            // Close when clicking elsewhere
-            document.addEventListener('click', function(event) {
-                if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-                    userMenu.classList.add('hidden');
-                    userMenu.style.display = 'none';
-                }
-            });
-        }
-
-        // Scroll to top functionality
-        const scrollToTopBtn = document.getElementById('scrollToTop');
-        if (scrollToTopBtn) {
-            // Show/hide scroll to top button based on scroll position
-            window.addEventListener('scroll', function() {
-                if (window.pageYOffset > 300) {
-                    scrollToTopBtn.style.opacity = '1';
-                    scrollToTopBtn.style.pointerEvents = 'auto';
-                } else {
-                    scrollToTopBtn.style.opacity = '0';
-                    scrollToTopBtn.style.pointerEvents = 'none';
-                }
-            });
-
-            // Show button immediately when page loads if already scrolled
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.style.opacity = '1';
-                scrollToTopBtn.style.pointerEvents = 'auto';
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.style.display = 'block';
+                mobileMenu.style.position = 'fixed';
+                mobileMenu.style.top = '4rem';
+                mobileMenu.style.left = '0';
+                mobileMenu.style.right = '0';
+                mobileMenu.style.zIndex = '40';
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.style.display = 'none';
             }
         }
+    }
+
+    // Set up event listeners after the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ensure the hamburger button has the event handler
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        if (hamburgerBtn) {
+            // Try multiple approaches to attach the event
+            hamburgerBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMobileMenu(e);
+            };
+
+            // Add event listener as backup
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMobileMenu(e);
+            }, true); // Use capture phase
+        }
+
+        // Close mobile menu when clicking on links
+        const menuLinks = document.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.style.display = 'none';
+                    mobileMenu.style.visibility = 'hidden';
+                }
+            });
+        });
     });
 
-    // Function to scroll to top smoothly
+    // Also try setting the event immediately if DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        const hamburgerBtn = document.getElementById('hamburger-menu-btn');
+        if (hamburgerBtn) {
+            hamburgerBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMobileMenu(e);
+            };
+        }
+    }
+
+    // Function to scroll to top
     function scrollToTop() {
         window.scrollTo({
             top: 0,

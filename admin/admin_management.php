@@ -81,17 +81,30 @@ $csrf_token = generateCSRFToken();
                 <h1 class="text-xl font-bold text-green-600">Admin Panel - Melo Health</h1>
             </div>
 
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-700">Halo, <?php echo htmlspecialchars($_SESSION['admin_nama']); ?></span>
-                <a href="../logout.php" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Logout</a>
+            <div class="flex items-center">
+                <div class="hidden md:block">
+                    <span class="text-gray-700">Halo, <?php echo htmlspecialchars($_SESSION['admin_nama']); ?></span>
+                    <a href="../logout.php" class="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition duration-300">Logout</a>
+                </div>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-700 ml-4">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Admin Sidebar -->
+    <!-- Admin Sidebar and Main Content -->
     <div class="flex">
-        <div class="w-64 bg-white shadow-md min-h-screen">
+        <!-- Sidebar -->
+        <div id="sidebar" class="w-64 bg-white shadow-md min-h-screen fixed top-0 right-0 md:static z-40 transform translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-green-600">Admin Panel</h2>
+                    <button id="close-sidebar" class="md:hidden text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
                 <ul class="space-y-2">
                     <li>
                         <a href="dashboard.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
@@ -121,6 +134,9 @@ $csrf_token = generateCSRFToken();
                 </ul>
             </div>
         </div>
+
+        <!-- Sidebar Overlay for mobile -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 z-30 hidden transition-opacity duration-300 ease-in-out"></div>
 
         <!-- Main Content -->
         <div class="flex-1 p-8">
@@ -177,7 +193,36 @@ $csrf_token = generateCSRFToken();
                 <div class="px-6 py-4 bg-gray-50 border-b">
                     <h2 class="text-xl font-bold text-gray-800">Daftar Admin</h2>
                 </div>
-                <div class="overflow-x-auto">
+
+                <?php
+                $stmt = $pdo->query("SELECT id, nama, username, created_at FROM admin ORDER BY created_at DESC");
+                $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                ?>
+
+                <!-- Mobile card view -->
+                <div class="block md:hidden">
+                    <?php if (count($admins) > 0): ?>
+                        <?php foreach ($admins as $admin): ?>
+                            <div class="border-b border-gray-200 p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="font-medium"><?php echo htmlspecialchars($admin['nama']); ?></div>
+                                        <div class="text-sm text-gray-600">ID: <?php echo htmlspecialchars($admin['id']); ?></div>
+                                        <div class="text-sm text-gray-600">Username: <?php echo htmlspecialchars($admin['username']); ?></div>
+                                        <div class="text-sm text-gray-600">Dibuat: <?php echo date('d/m/Y H:i', strtotime($admin['created_at'])); ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="p-8 text-center text-gray-500">
+                            Tidak ada admin ditemukan
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Desktop table view -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
@@ -188,12 +233,7 @@ $csrf_token = generateCSRFToken();
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <?php
-                            $stmt = $pdo->query("SELECT id, nama, username, created_at FROM admin ORDER BY created_at DESC");
-                            $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                            
-                            foreach ($admins as $admin):
-                            ?>
+                            <?php foreach ($admins as $admin): ?>
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($admin['id']); ?></td>
                                     <td class="px-6 py-4 whitespace-nowrap"><?php echo htmlspecialchars($admin['nama']); ?></td>
@@ -210,5 +250,52 @@ $csrf_token = generateCSRFToken();
 
     <!-- JavaScript -->
     <script src="../assets/js/script.js"></script>
+    <script>
+        // Mobile menu toggle for admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const closeSidebarButton = document.getElementById('close-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+
+            if (mobileMenuButton && sidebar && overlay) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Show sidebar
+                    sidebar.classList.remove('translate-x-full');
+                    sidebar.classList.add('translate-x-0');
+
+                    // Show overlay
+                    overlay.classList.remove('hidden');
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-0');
+                        overlay.classList.add('opacity-50');
+                    }, 10);
+                });
+
+                function closeSidebar() {
+                    // Hide sidebar
+                    sidebar.classList.add('translate-x-full');
+                    sidebar.classList.remove('translate-x-0');
+
+                    // Hide overlay
+                    overlay.classList.remove('opacity-50');
+                    setTimeout(() => {
+                        overlay.classList.add('opacity-0');
+                        overlay.classList.add('hidden');
+                    }, 300);
+                }
+
+                // Close sidebar when clicking on overlay
+                overlay.addEventListener('click', closeSidebar);
+
+                // Close sidebar when clicking on close button
+                if (closeSidebarButton) {
+                    closeSidebarButton.addEventListener('click', closeSidebar);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
