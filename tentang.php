@@ -122,13 +122,6 @@ require_once 'includes/functions.php';
                     <p class="text-gray-600 text-center">Laboratorium lengkap untuk pemeriksaan laboratorium berbagai jenis tes.</p>
                 </div>
 
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out">
-                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto">
-                        <i class="fas fa-ambulance text-green-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2 text-center text-gray-800">Unit Gawat Darurat</h3>
-                    <p class="text-gray-600 text-center">Unit gawat darurat yang siap melayani 24 jam untuk kondisi darurat.</p>
-                </div>
 
                 <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto">
@@ -191,8 +184,7 @@ require_once 'includes/functions.php';
                                 <div>
                                     <h3 class="font-bold text-gray-800">Jam Operasional</h3>
                                     <p class="text-gray-600">Senin - Jumat: 07:00 - 16:00<br>
-                                    Sabtu: 08:00 - 14:00<br>
-                                    UGD: 24 Jam</p>
+                                    Sabtu: 08:00 - 14:00</p>
                                 </div>
                             </li>
                         </ul>
@@ -217,7 +209,6 @@ require_once 'includes/functions.php';
                         <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gigi</a></li>
                         <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gizi</a></li>
                         <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Umum</a></li>
-                        <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Unit Gawat Darurat</a></li>
                     </ul>
                 </div>
 
@@ -227,7 +218,11 @@ require_once 'includes/functions.php';
                         <li><a href="index.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Beranda</a></li>
                         <li><a href="tentang.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Tentang</a></li>
                         <li><a href="berita.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Berita</a></li>
+                        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_confirmed'] == 'confirmed'): ?>
+                        <li><a href="user/profile.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Profile</a></li>
+                        <?php else: ?>
                         <li><a href="login.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Login</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 

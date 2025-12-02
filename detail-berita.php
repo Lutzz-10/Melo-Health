@@ -154,7 +154,6 @@ try {
                         <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
                         <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
                         <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
-                        <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
                     </ul>
                 </div>
 
@@ -164,7 +163,11 @@ try {
                         <li><a href="index.php" class="text-gray-400 hover:text-white transition duration-300">Beranda</a></li>
                         <li><a href="tentang.php" class="text-gray-400 hover:text-white transition duration-300">Tentang</a></li>
                         <li><a href="berita.php" class="text-gray-400 hover:text-white transition duration-300">Berita</a></li>
+                        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_confirmed'] == 'confirmed'): ?>
+                        <li><a href="user/profile.php" class="text-gray-400 hover:text-white transition duration-300">Profile</a></li>
+                        <?php else: ?>
                         <li><a href="login.php" class="text-gray-400 hover:text-white transition duration-300">Login</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 

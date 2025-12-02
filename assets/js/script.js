@@ -28,18 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to handle queue confirmation
-function ambilAntrian() {
-    // Check if user is logged in
-    if (!isLoggedIn()) {
-        // Redirect to login if not logged in
-        window.location.href = 'login.php';
-    } else {
-        // Show confirmation modal
-        document.getElementById('antrianModal').classList.remove('hidden');
-    }
-}
-
 // Function to close modal
 function tutupModal() {
     document.getElementById('antrianModal').classList.add('hidden');
@@ -50,13 +38,6 @@ function konfirmasiAntrian() {
     // In a real application, this would send a request to the server
     alert('Nomor antrian berhasil diambil!');
     tutupModal();
-}
-
-// Function to check if user is logged in
-function isLoggedIn() {
-    // This is a placeholder - in a real app you'd check session or local storage
-    // For now, return true if a login element doesn't exist
-    return !document.querySelector('a[href="login.php"]');
 }
 
 // Function for emergency call

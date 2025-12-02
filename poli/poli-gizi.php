@@ -145,7 +145,7 @@ require_once '../includes/navbar.php';
                     <div class="bg-green-50 rounded-lg shadow-md p-6">
                         <h3 class="text-xl font-bold mb-4 text-gray-800">Ambil Nomor Antrian</h3>
                         <p class="text-gray-600 mb-4">Dapatkan program diet sehat dan konseling gizi dari ahli profesional kami.</p>
-                        <button onclick="ambilAntrian()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300">
+                        <button onclick="ambilAntrianPoliGizi()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition duration-300">
                             Ambil Nomor Antrian
                         </button>
                     </div>
@@ -185,10 +185,9 @@ require_once '../includes/navbar.php';
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
-                        <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
-                        <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
-                        <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
-                        <li><a href="poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
+                        <li><a href="poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
+                        <li><a href="poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
+                        <li><a href="poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
                     </ul>
                 </div>
 
@@ -198,7 +197,11 @@ require_once '../includes/navbar.php';
                         <li><a href="index.php" class="text-gray-400 hover:text-white transition duration-300">Beranda</a></li>
                         <li><a href="tentang.php" class="text-gray-400 hover:text-white transition duration-300">Tentang</a></li>
                         <li><a href="berita.php" class="text-gray-400 hover:text-white transition duration-300">Berita</a></li>
+                        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_confirmed'] == 'confirmed'): ?>
+                        <li><a href="user/profile.php" class="text-gray-400 hover:text-white transition duration-300">Profile</a></li>
+                        <?php else: ?>
                         <li><a href="login.php" class="text-gray-400 hover:text-white transition duration-300">Login</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 
@@ -256,20 +259,7 @@ require_once '../includes/navbar.php';
     </div>
 
     <!-- JavaScript -->
-    <script src="../assets/js/script.js"></script>
     <script>
-        // Ambil antrian function
-        function ambilAntrian() {
-            // Check if user is logged in
-            <?php if (!isset($_SESSION['user_id']) || !$_SESSION['user_confirmed'] == 'confirmed'): ?>
-                // Redirect to login if not logged in
-                window.location.href = '../login.php';
-            <?php else: ?>
-                // Show confirmation modal
-                document.getElementById('antrianModal').classList.remove('hidden');
-            <?php endif; ?>
-        }
-
         // Close modal function
         function tutupModal() {
             document.getElementById('antrianModal').classList.add('hidden');
@@ -279,6 +269,22 @@ require_once '../includes/navbar.php';
         function konfirmasiAntrian() {
             // Redirect to queue taking page with poli id
             window.location.href = '../user/ambil-antrian.php?poli_id=2';
+        }
+
+        // Ambil antrian function for Poli Gizi
+        function ambilAntrianPoliGizi() {
+            // Check if user is logged in using server-side check
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                // Redirect to login if not logged in
+                window.location.href = '../login.php';
+            <?php elseif ($_SESSION['user_confirmed'] != 'confirmed'): ?>
+                // If user is not confirmed, show message or redirect to login with message
+                alert('Akun Anda belum dikonfirmasi. Silakan datang ke Puskesmas untuk konfirmasi.');
+                window.location.href = '../login.php';
+            <?php else: ?>
+                // Show confirmation modal
+                document.getElementById('antrianModal').classList.remove('hidden');
+            <?php endif; ?>
         }
 
         // Set today's date in the modal

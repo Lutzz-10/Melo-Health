@@ -16,51 +16,7 @@ if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per h
     $error = '';
     $success = '';
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // CSRF protection
-        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
-            die('CSRF token validation failed');
-        }
-
-        $poli_id = (int)$_POST['poli_id'];
-        $tanggal_antrian = sanitizeInput($_POST['tanggal_antrian']);
-
-        // Validate input
-        if (empty($poli_id) || empty($tanggal_antrian)) {
-            $error = "Poli dan tanggal harus dipilih.";
-        } elseif (strtotime($tanggal_antrian) < strtotime(date('Y-m-d'))) {
-            $error = "Tanggal antrian tidak boleh sebelum hari ini.";
-        } elseif (checkForDangerousContent($tanggal_antrian)) {
-            $error = "Input mengandung konten berbahaya.";
-        } else {
-            try {
-                // Check if user already has an active queue for the same poli and date
-                $stmt = $pdo->prepare("SELECT COUNT(*) FROM antrian WHERE user_id = ? AND poli_id = ? AND tanggal_antrian = ? AND status = 'menunggu'");
-                $stmt->execute([$_SESSION['user_id'], $poli_id, $tanggal_antrian]);
-
-                if ($stmt->fetchColumn() > 0) {
-                    $error = "Anda sudah memiliki antrian aktif untuk poli dan tanggal yang sama.";
-                } else {
-                    // Generate queue number
-                    $nomor_antrian = generateQueueNumber($poli_id, $tanggal_antrian);
-
-                    // Insert new queue
-                    $stmt = $pdo->prepare("INSERT INTO antrian (user_id, poli_id, nomor_antrian, tanggal_antrian) VALUES (?, ?, ?, ?)");
-                    $result = $stmt->execute([$_SESSION['user_id'], $poli_id, $nomor_antrian, $tanggal_antrian]);
-
-                    if ($result) {
-                        $success = "Nomor antrian berhasil diambil: $nomor_antrian";
-                    } else {
-                        $error = "Gagal mengambil nomor antrian.";
-                    }
-                }
-            } catch (PDOException $e) {
-                $error = "Terjadi kesalahan: " . $e->getMessage();
-            }
-        }
-    }
-
-    // Get poli information
+    // Get poli information first to ensure it exists
     $poli_id = (int)$_GET['poli_id'] ?? 0;
     if ($poli_id > 0) {
         $stmt = $pdo->prepare("SELECT * FROM poli WHERE id = ?");
@@ -69,9 +25,59 @@ if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per h
 
         if (!$poli) {
             $error = "Poli tidak ditemukan.";
+            $poli_id = 0; // Reset invalid poli_id
         }
     } else {
         $error = "Poli tidak ditemukan.";
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && $poli_id > 0) {
+        // CSRF protection
+        if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            die('CSRF token validation failed');
+        }
+
+        // Validate that the posted poli_id matches the one from URL to prevent tampering
+        $posted_poli_id = (int)$_POST['poli_id'];
+        if ($posted_poli_id !== $poli_id) {
+            $error = "Data poli tidak valid.";
+        } else {
+            $tanggal_antrian = sanitizeInput($_POST['tanggal_antrian']);
+
+            // Validate input
+            if (empty($tanggal_antrian)) {
+                $error = "Tanggal harus dipilih.";
+            } elseif (strtotime($tanggal_antrian) < strtotime(date('Y-m-d'))) {
+                $error = "Tanggal antrian tidak boleh sebelum hari ini.";
+            } elseif (checkForDangerousContent($tanggal_antrian)) {
+                $error = "Input mengandung konten berbahaya.";
+            } else {
+                try {
+                    // Check if user already has an active queue for the same poli and date
+                    $stmt = $pdo->prepare("SELECT COUNT(*) FROM antrian WHERE user_id = ? AND poli_id = ? AND tanggal_antrian = ? AND status = 'menunggu'");
+                    $stmt->execute([$_SESSION['user_id'], $poli_id, $tanggal_antrian]);
+
+                    if ($stmt->fetchColumn() > 0) {
+                        $error = "Anda sudah memiliki antrian aktif untuk poli dan tanggal yang sama.";
+                    } else {
+                        // Generate queue number
+                        $nomor_antrian = generateQueueNumber($poli_id, $tanggal_antrian);
+
+                        // Insert new queue
+                        $stmt = $pdo->prepare("INSERT INTO antrian (user_id, poli_id, nomor_antrian, tanggal_antrian) VALUES (?, ?, ?, ?)");
+                        $result = $stmt->execute([$_SESSION['user_id'], $poli_id, $nomor_antrian, $tanggal_antrian]);
+
+                        if ($result) {
+                            $success = "Nomor antrian berhasil diambil: $nomor_antrian";
+                        } else {
+                            $error = "Gagal mengambil nomor antrian.";
+                        }
+                    }
+                } catch (PDOException $e) {
+                    $error = "Terjadi kesalahan: " . $e->getMessage();
+                }
+            }
+        }
     }
 }
 

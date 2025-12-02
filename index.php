@@ -143,7 +143,11 @@ try {
                         <li><a href="index.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Beranda</a></li>
                         <li><a href="tentang.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Tentang</a></li>
                         <li><a href="berita.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Berita</a></li>
+                        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_confirmed'] == 'confirmed'): ?>
+                        <li><a href="user/profile.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Profile</a></li>
+                        <?php else: ?>
                         <li><a href="login.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Login</a></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
 
