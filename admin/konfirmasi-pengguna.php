@@ -119,6 +119,11 @@ $pending_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </a>
                     </li>
                     <li>
+                        <a href="poli_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-clinic-medical mr-3"></i>Manajemen Poli
+                        </a>
+                    </li>
+                    <li>
                         <a href="admin_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
                             <i class="fas fa-user-cog mr-3"></i>Manajemen Admin
                         </a>
@@ -143,46 +148,38 @@ $pending_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if (count($pending_users) > 0): ?>
                 <!-- Mobile card view -->
                 <div class="block md:hidden">
-                    <?php if (count($pending_users) > 0): ?>
-                        <?php foreach ($pending_users as $user): ?>
-                            <div class="border-b border-gray-200 p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <div class="font-medium"><?php echo htmlspecialchars($user['nama']); ?></div>
-                                        <div class="text-sm text-gray-600">NIK: <?php echo htmlspecialchars($user['nik']); ?></div>
-                                        <div class="text-sm text-gray-600">Alamat: <?php echo htmlspecialchars($user['alamat']); ?></div>
-                                        <div class="text-sm text-gray-600">No HP: <?php echo htmlspecialchars($user['no_hp']); ?></div>
-                                        <div class="text-sm text-gray-600">Tanggal: <?php echo date('d-m-Y H:i', strtotime($user['created_at'])); ?></div>
-                                    </div>
-                                    <div class="flex flex-col space-y-2">
-                                        <form method="POST" onsubmit="return confirm('Yakin ingin mengkonfirmasi pengguna ini?');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                            <input type="hidden" name="action" value="confirm">
-                                            <button type="submit" class="text-green-600 hover:text-green-900">
-                                                <i class="fas fa-check"></i> Konfirmasi
-                                            </button>
-                                        </form>
+                    <?php foreach ($pending_users as $user): ?>
+                        <div class="border-b border-gray-200 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium"><?php echo htmlspecialchars($user['nama']); ?></div>
+                                    <div class="text-sm text-gray-600">NIK: <?php echo htmlspecialchars($user['nik']); ?></div>
+                                    <div class="text-sm text-gray-600">Alamat: <?php echo htmlspecialchars($user['alamat']); ?></div>
+                                    <div class="text-sm text-gray-600">No HP: <?php echo htmlspecialchars($user['no_hp']); ?></div>
+                                    <div class="text-sm text-gray-600">Tanggal: <?php echo date('d-m-Y H:i', strtotime($user['created_at'])); ?></div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <form method="POST" onsubmit="return confirm('Yakin ingin mengkonfirmasi pengguna ini?');">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                        <input type="hidden" name="action" value="confirm">
+                                        <button type="submit" class="text-green-600 hover:text-green-900">
+                                            <i class="fas fa-check"></i> Konfirmasi
+                                        </button>
+                                    </form>
 
-                                        <form method="POST" onsubmit="return confirm('Yakin ingin menghapus pengguna ini?');">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
-                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                            <input type="hidden" name="action" value="delete">
-                                            <button type="submit" class="text-red-600 hover:text-red-900">
-                                                <i class="fas fa-trash"></i> Hapus
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <form method="POST" onsubmit="return confirm('Yakin ingin menghapus pengguna ini?');">
+                                        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="text-red-600 hover:text-red-900">
+                                            <i class="fas fa-trash"></i> Hapus
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="bg-white rounded-lg shadow p-8 text-center">
-                            <i class="fas fa-users text-gray-400 text-5xl mb-4"></i>
-                            <h3 class="text-xl font-medium text-gray-900 mb-2">Tidak Ada Pengguna Menunggu Konfirmasi</h3>
-                            <p class="text-gray-500">Semua pengguna yang mendaftar telah dikonfirmasi.</p>
                         </div>
-                    <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
 
                 <!-- Desktop table view -->
@@ -233,6 +230,12 @@ $pending_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </table>
                         </div>
                     </div>
+                </div>
+            <?php else: ?>
+                <div class="bg-white rounded-lg shadow p-8 text-center">
+                    <i class="fas fa-users text-gray-400 text-5xl mb-4"></i>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">Tidak Ada Pengguna Menunggu Konfirmasi</h3>
+                    <p class="text-gray-500">Semua pengguna yang mendaftar telah dikonfirmasi.</p>
                 </div>
             <?php endif; ?>
         </div>

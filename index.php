@@ -58,7 +58,7 @@ try {
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Layanan Unggulan Kami</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <a href="poli/poli-gigi.php" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
+                <a href="layanan.php?poli_id=1" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-tooth text-green-600 text-2xl"></i>
                     </div>
@@ -66,7 +66,7 @@ try {
                     <p class="text-gray-600">Pelayanan kesehatan gigi dan mulut yang komprehensif.</p>
                 </a>
 
-                <a href="poli/poli-gizi.php" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
+                <a href="layanan.php?poli_id=2" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-utensils text-green-600 text-2xl"></i>
                     </div>
@@ -74,7 +74,7 @@ try {
                     <p class="text-gray-600">Konsultasi gizi dan program diet sehat.</p>
                 </a>
 
-                <a href="poli/poli-umum.php" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
+                <a href="layanan.php?poli_id=3" class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg hover:scale-105 hover:-translate-y-2 transition-all duration-500 ease-in-out flex flex-col items-center text-center cursor-pointer">
                     <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                         <i class="fas fa-user-md text-green-600 text-2xl"></i>
                     </div>
@@ -131,9 +131,7 @@ try {
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
-                        <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gigi</a></li>
-                        <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gizi</a></li>
-                        <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Umum</a></li>
+                        <li><a href="layanan.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Layanan</a></li>
                     </ul>
                 </div>
 

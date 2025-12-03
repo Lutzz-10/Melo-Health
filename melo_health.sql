@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 01, 2025 at 11:40 PM
+-- Generation Time: Dec 03, 2025 at 03:57 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -67,7 +67,11 @@ CREATE TABLE `antrian` (
 INSERT INTO `antrian` (`id`, `user_id`, `poli_id`, `nomor_antrian`, `tanggal_antrian`, `status`, `created_at`) VALUES
 (1, 3, 1, 'A001', '2025-11-28', 'sudah_digunakan', '2025-11-28 07:18:27'),
 (2, 3, 2, 'A001', '2025-11-28', 'sudah_digunakan', '2025-11-28 07:18:53'),
-(3, 4, 2, 'A002', '2025-11-28', 'menunggu', '2025-11-28 09:31:31');
+(3, 4, 2, 'A002', '2025-11-28', 'sudah_kadaluarsa', '2025-11-28 09:31:31'),
+(4, 3, 1, 'A001', '2025-12-02', 'sudah_kadaluarsa', '2025-12-02 05:07:48'),
+(5, 3, 1, 'A001', '2025-12-03', 'sudah_digunakan', '2025-12-03 12:59:38'),
+(6, 3, 3, 'U001', '2025-12-03', 'sudah_digunakan', '2025-12-03 15:13:26'),
+(7, 3, 2, 'GZ001', '2025-12-03', 'sudah_digunakan', '2025-12-03 15:13:33');
 
 -- --------------------------------------------------------
 
@@ -99,41 +103,12 @@ INSERT INTO `berita` (`id`, `judul`, `konten`, `gambar`, `tanggal_publish`, `cre
 -- --------------------------------------------------------
 
 --
--- Table structure for table `dokter`
---
-
-CREATE TABLE `dokter` (
-  `id` int NOT NULL,
-  `nama` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `spesialisasi` enum('poli_gigi','poli_gizi','poli_umum','ugd') COLLATE utf8mb4_general_ci NOT NULL,
-  `foto` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `jadwal` text COLLATE utf8mb4_general_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `dokter`
---
-
-INSERT INTO `dokter` (`id`, `nama`, `spesialisasi`, `foto`, `jadwal`) VALUES
-(1, 'Dr. Budi Santoso', 'poli_umum', NULL, 'Senin, Rabu, Jumat: 07:00 - 14:00'),
-(2, 'Dr. Siti Aminah', 'poli_umum', NULL, 'Selasa, Kamis: 07:00 - 14:00'),
-(3, 'Dr. Andi Pratama', 'poli_umum', NULL, 'Sabtu: 08:00 - 12:00'),
-(4, 'Drg. Siti Aminah', 'poli_gigi', NULL, 'Senin, Rabu, Jumat: 07:00 - 14:00'),
-(5, 'Drg. Budi Santoso', 'poli_gigi', NULL, 'Selasa, Kamis: 07:00 - 14:00'),
-(6, 'Drg. Andi Pratama', 'poli_gigi', NULL, 'Sabtu: 08:00 - 12:00'),
-(7, 'Ns. Rina Kartika', 'poli_gizi', NULL, 'Senin, Rabu, Jumat: 08:00 - 14:00'),
-(8, 'Dr. Andi Pratama', 'poli_gizi', NULL, 'Selasa, Kamis: 08:00 - 14:00'),
-(9, 'Sst. Maya Sari', 'poli_gizi', NULL, 'Sabtu: 08:00 - 12:00');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `poli`
 --
 
 CREATE TABLE `poli` (
   `id` int NOT NULL,
-  `nama_poli` enum('poli_gigi','poli_gizi','poli_umum','ugd') COLLATE utf8mb4_general_ci NOT NULL,
+  `nama_poli` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `tipe_layanan` text COLLATE utf8mb4_general_ci NOT NULL,
   `informasi_umum` text COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -145,7 +120,9 @@ CREATE TABLE `poli` (
 INSERT INTO `poli` (`id`, `nama_poli`, `tipe_layanan`, `informasi_umum`) VALUES
 (1, 'poli_gigi', 'Pemeriksaan Gigi Rutin, Pembersihan Karang Gigi, Penambalan Gigi, Pencabutan Gigi, Pembuatan Gigi Palsu, Perawatan Saluran Akar, Pemutihan Gigi, Pemeriksaan dan Pemasangan Behel', 'Jam Operasional: Senin - Jumat: 07:00 - 16:00, Sabtu: 08:00 - 14:00'),
 (2, 'poli_gizi', 'Assessment Status Gizi, Konsultasi Gizi untuk Ibu Hamil, Konsultasi Gizi untuk Anak-anak, Konsultasi Diet untuk Penderita Diabetes, Konsultasi Diet untuk Penderita Hipertensi, Konsultasi Diet Penurunan Berat Badan, Konsultasi Diet Peningkatan Berat Badan, Konsultasi Gizi untuk Lansia', 'Jam Operasional: Senin - Jumat: 08:00 - 15:00, Sabtu: 08:00 - 12:00'),
-(3, 'poli_umum', 'Pemeriksaan Kesehatan Umum, Pengobatan Penyakit Ringan, Imunisasi, Deteksi Dini Penyakit, Pemeriksaan Tekanan Darah, Pemeriksaan Gula Darah, Konsultasi Kesehatan, Pemeriksaan Ibu Hamil', 'Jam Operasional: Senin - Jumat: 07:00 - 16:00, Sabtu: 08:00 - 14:00');
+(3, 'poli_umum', 'Pemeriksaan Kesehatan Umum, Pengobatan Penyakit Ringan, Imunisasi, Deteksi Dini Penyakit, Pemeriksaan Tekanan Darah, Pemeriksaan Gula Darah, Konsultasi Kesehatan, Pemeriksaan Ibu Hamil', 'Jam Operasional: Senin - Jumat: 07:00 - 16:00, Sabtu: 08:00 - 14:00'),
+(5, 'poli_mata', 'Pemeriksaan Mata, Terapi Mata, Operasi Lasik', 'Jam Operasional: Senin dan Kamis: 09:00 - 14:00'),
+(6, 'poli_kulit', 'Pengecekan Kulit, Perawatan Kulit, Konsultasi Permasalahan Kulit, Laser Wajah', 'Jam Operasional: Senin - Jumat: 07:00 - 16:00, Sabtu: 08:00 - 14:00');
 
 -- --------------------------------------------------------
 
@@ -200,12 +177,6 @@ ALTER TABLE `berita`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `dokter`
---
-ALTER TABLE `dokter`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `poli`
 --
 ALTER TABLE `poli`
@@ -232,7 +203,7 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT for table `antrian`
 --
 ALTER TABLE `antrian`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `berita`
@@ -241,16 +212,10 @@ ALTER TABLE `berita`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT for table `dokter`
---
-ALTER TABLE `dokter`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
 -- AUTO_INCREMENT for table `poli`
 --
 ALTER TABLE `poli`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`

@@ -9,15 +9,12 @@ if (!isLoggedIn() || !isUserConfirmed()) {
     exit();
 }
 
-// Rate limiting for queue taking
-if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per hour
-    $error = "Terlalu banyak permintaan mengambil antrian. Silakan coba lagi nanti.";
-} else {
     $error = '';
     $success = '';
 
     // Get poli information first to ensure it exists
-    $poli_id = (int)$_GET['poli_id'] ?? 0;
+    // Support both POST and GET for poli_id
+    $poli_id = (int)($_POST['poli_id'] ?? $_GET['poli_id'] ?? 0);
     if ($poli_id > 0) {
         $stmt = $pdo->prepare("SELECT * FROM poli WHERE id = ?");
         $stmt->execute([$poli_id]);
@@ -32,7 +29,7 @@ if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per h
     }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && $poli_id > 0) {
-        // CSRF protection
+        // CSRF protection - only required for POST requests
         if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
             die('CSRF token validation failed');
         }
@@ -79,7 +76,6 @@ if (!checkRateLimit('ambil_antrian', 10, 3600)) { // Max 10 queue requests per h
             }
         }
     }
-}
 
 // Generate CSRF token for the form
 $csrf_token = generateCSRFToken();
@@ -107,7 +103,35 @@ $csrf_token = generateCSRFToken();
     <section class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-16">
         <div class="container mx-auto px-4 text-center">
             <h1 class="text-4xl font-bold mb-4">Ambil Antrian</h1>
-            <p class="text-xl">Poli: <?php echo ucfirst(str_replace('_', ' ', $poli['nama_poli'])); ?></p>
+            <p class="text-xl">Poli: <?php echo isset($poli) && $poli ? ucfirst(str_replace('_', ' ', $poli['nama_poli'])) : 'Tidak Diketahui'; ?></p>
+        </div>
+    </section>
+
+    <!-- Poli Selection Bar -->
+    <section class="bg-white py-4 shadow-md">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-800 mb-2 md:mb-0">Pilih Poli Lain:</h3>
+                <div class="w-full md:w-auto">
+                    <select id="poliSelection" onchange="changePoli(this.value)" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <?php
+                        // Get all poli from database
+                        try {
+                            $stmt = $pdo->query("SELECT * FROM poli ORDER BY id ASC");
+                            $poli_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                            foreach ($poli_list as $p) {
+                                $p_display_name = ucfirst(str_replace(['poli_', '_'], ['Poli ', ' '], $p['nama_poli']));
+                                $selected = ($p['id'] == $poli_id) ? 'selected' : '';
+                                echo '<option value="' . $p['id'] . '" ' . $selected . '>' . $p_display_name . '</option>';
+                            }
+                        } catch (PDOException $e) {
+                            echo '<option value="">Gagal memuat daftar poli</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
         </div>
     </section>
     
@@ -126,22 +150,22 @@ $csrf_token = generateCSRFToken();
                 </div>
             <?php endif; ?>
             
-            <?php if (empty($error) && $poli): ?>
+            <?php if (empty($error) && isset($poli) && $poli): ?>
                 <div class="bg-gray-50 rounded-lg shadow-md p-8">
                     <h2 class="text-2xl font-bold mb-6 text-gray-800">Konfirmasi Ambil Antrian</h2>
-                    
+
                     <form method="POST">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                         <input type="hidden" name="poli_id" value="<?php echo $poli_id; ?>">
 
                         <div class="mb-6">
                             <label for="tanggal_antrian" class="block text-gray-700 font-medium mb-2">Tanggal</label>
-                            <input type="date" id="tanggal_antrian" name="tanggal_antrian" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" value="<?php echo date('Y-m-d'); ?>" required>
+                            <input type="date" id="tanggal_antrian" name="tanggal_antrian" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" value="<?php echo isset($_POST['tanggal_antrian']) ? htmlspecialchars($_POST['tanggal_antrian']) : date('Y-m-d'); ?>" min="<?php echo date('Y-m-d'); ?>" required>
                         </div>
 
                         <div class="mb-6">
                             <label for="poli_nama" class="block text-gray-700 font-medium mb-2">Poli</label>
-                            <input type="text" id="poli_nama" class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg" value="<?php echo ucfirst(escapeOutput($poli['nama_poli'])); ?>" readonly>
+                            <input type="text" id="poli_nama" class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg" value="<?php echo isset($poli) && $poli ? ucfirst(escapeOutput($poli['nama_poli'])) : 'Tidak Diketahui'; ?>" readonly>
                         </div>
 
                         <div class="mb-8">
@@ -153,15 +177,7 @@ $csrf_token = generateCSRFToken();
                                 Ambil Antrian
                             </button>
 
-                            <a href="../poli/<?php
-                                switch($poli['nama_poli']) {
-                                    case 'poli_gigi': echo 'poli-gigi.php'; break;
-                                    case 'poli_gizi': echo 'poli-gizi.php'; break;
-                                    case 'poli_umum': echo 'poli-umum.php'; break;
-                                    case 'ugd': echo 'ugd.php'; break;
-                                    default: echo 'index.php'; break;
-                                }
-                            ?>" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 text-center inline-block">
+                            <a href="../layanan.php?poli_id=<?php echo $poli_id; ?>" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 text-center inline-block">
                                 Kembali
                             </a>
                         </div>
@@ -183,10 +199,7 @@ $csrf_token = generateCSRFToken();
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
-                        <li><a href="../poli/poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
-                        <li><a href="../poli/poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
-                        <li><a href="../poli/poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
-                        <li><a href="../poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
+                        <li><a href="../layanan.php" class="text-gray-400 hover:text-white transition duration-300">Layanan</a></li>
                     </ul>
                 </div>
                 
@@ -233,9 +246,17 @@ $csrf_token = generateCSRFToken();
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
         });
-        
+
         // Set minimum date to today
         document.getElementById('tanggal_antrian').min = new Date().toISOString().split('T')[0];
+
+        // Change poli function
+        function changePoli(poliId) {
+            if (poliId) {
+                // Redirect to the same page with new poli_id
+                window.location.href = 'ambil-antrian.php?poli_id=' + poliId;
+            }
+        }
     </script>
 </body>
 </html>

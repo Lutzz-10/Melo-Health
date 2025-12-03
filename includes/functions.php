@@ -32,27 +32,113 @@ function isAdminLoggedIn() {
     return isset($_SESSION['admin_id']);
 }
 
-// Function to generate queue number
+// Function to generate queue number with poli-specific prefix
 function generateQueueNumber($poliId, $date) {
     global $pdo;
 
     // Format date for query
     $formattedDate = date('Y-m-d', strtotime($date));
 
-    // Get the highest queue number for this poli and date
-    $stmt = $pdo->prepare("SELECT MAX(nomor_antrian) as max_number FROM antrian WHERE poli_id = ? AND tanggal_antrian = ?");
-    $stmt->execute([$poliId, $formattedDate]);
+    // Get the poli information to determine the prefix
+    $stmt = $pdo->prepare("SELECT nama_poli FROM poli WHERE id = ?");
+    $stmt->execute([$poliId]);
+    $poli = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$poli) {
+        // Default to 'A' if poli not found
+        $prefix = 'A';
+    } else {
+        $poliName = $poli['nama_poli'];
+
+        // Generate prefix based on poli name
+        if ($poliName === 'poli_gigi') {
+            $prefix = 'G';
+        } elseif ($poliName === 'poli_gizi') {
+            $prefix = 'GZ';
+        } elseif ($poliName === 'poli_umum') {
+            $prefix = 'U';
+        } else {
+            // For other poli, use first letter of each word
+            $words = explode('_', $poliName);
+            $prefix = '';
+            foreach ($words as $word) {
+                if (strpos($word, 'poli') === false) {
+                    $prefix .= strtoupper(substr($word, 0, 1));
+                }
+            }
+            if (empty($prefix)) {
+                $prefix = 'A';
+            }
+        }
+
+        // If prefix already exists and is too long, truncate it
+        if (strlen($prefix) > 3) {
+            $prefix = substr($prefix, 0, 3);
+        }
+    }
+
+    // First, try with the base prefix
+    $baseLikePattern = $prefix . '%';
+    $stmt = $pdo->prepare("SELECT nomor_antrian FROM antrian WHERE nomor_antrian LIKE ? AND tanggal_antrian = ?");
+    $stmt->execute([$baseLikePattern, $formattedDate]);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Find all existing prefixes that start with our base prefix
+    $usedPrefixes = [];
+    foreach ($results as $row) {
+        $firstNonDigitIndex = 0;
+        $currentPrefix = '';
+        $numPart = '';
+
+        // Extract prefix part (non-numeric characters)
+        $numLength = strlen($row['nomor_antrian']);
+        for ($i = 0; $i < $numLength; $i++) {
+            if (is_numeric($row['nomor_antrian'][$i])) {
+                $currentPrefix = substr($row['nomor_antrian'], 0, $i);
+                $numPart = substr($row['nomor_antrian'], $i);
+                break;
+            }
+        }
+
+        // If no numeric part was found, the whole thing is the prefix
+        if (empty($numPart)) {
+            $currentPrefix = $row['nomor_antrian'];
+        }
+
+        if (!in_array($currentPrefix, $usedPrefixes)) {
+            $usedPrefixes[] = $currentPrefix;
+        }
+    }
+
+    // Find the first available prefix
+    $currentPrefix = $prefix;
+    $counter = 1;
+
+    while (in_array($currentPrefix, $usedPrefixes)) {
+        $counter++;
+        $currentPrefix = $prefix . $counter;
+    }
+
+    // Now find the highest number for this specific prefix
+    $stmt = $pdo->prepare("SELECT MAX(nomor_antrian) as max_number FROM antrian WHERE nomor_antrian LIKE ? AND tanggal_antrian = ?");
+    $likePattern = $currentPrefix . '%';
+    $stmt->execute([$likePattern, $formattedDate]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $lastNumber = $result['max_number'];
 
     if ($lastNumber) {
-        // Extract the numeric part and increment it
-        $number = intval(substr($lastNumber, 1)) + 1;
-        $newNumber = 'A' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        // Extract the numeric part after the prefix and increment it
+        $numberPart = substr($lastNumber, strlen($currentPrefix));
+        if (ctype_digit($numberPart)) {
+            $number = intval($numberPart) + 1;
+        } else {
+            $number = 1; // If there's no numeric part, start with 1
+        }
+        $newNumber = $currentPrefix . str_pad($number, 3, '0', STR_PAD_LEFT);
     } else {
-        // If no records found for this poli and date, start from 001
-        $newNumber = 'A' . str_pad(1, 3, '0', STR_PAD_LEFT);
+        // If no records found for this specific prefix and date, start from 001
+        $newNumber = $currentPrefix . str_pad(1, 3, '0', STR_PAD_LEFT);
     }
 
     return $newNumber;
@@ -62,14 +148,32 @@ function generateQueueNumber($poliId, $date) {
 function getPoliName($poliId) {
     global $pdo;
 
-    $poliNames = [
-        1 => 'poli_gigi',
-        2 => 'poli_gizi',
-        3 => 'poli_umum',
-        4 => 'ugd'
-    ];
+    try {
+        $stmt = $pdo->prepare("SELECT nama_poli FROM poli WHERE id = ?");
+        $stmt->execute([$poliId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    return isset($poliNames[$poliId]) ? $poliNames[$poliId] : 'Unknown';
+        if ($result) {
+            return $result['nama_poli'];
+        }
+    } catch (PDOException $e) {
+        error_log("Error getting poli name: " . $e->getMessage());
+    }
+
+    return 'Unknown';
+}
+
+// Function to get poli information by ID
+function getPoliInfo($poliId) {
+    global $pdo;
+
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM poli WHERE id = ?");
+        $stmt->execute([$poliId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return null;
+    }
 }
 
 // Function to check if NIK exists in users table

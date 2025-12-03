@@ -26,7 +26,7 @@ $userConfirmed = isset($_SESSION['user_confirmed']) && $_SESSION['user_confirmed
 $isAdminLoggedIn = isset($_SESSION['admin_id']);
 ?>
 
-<nav class="bg-white shadow-md py-3 px-6 flex justify-between items-center sticky top-0 z-50">
+<nav class="bg-white shadow-md py-3 px-6 flex justify-between items-center sticky top-0 z-[9997]">
     <div class="flex items-center">
         <a href="<?php echo $base_path; ?>index.php" class="flex items-center">
             <img src="<?php echo $base_path; ?>assets/images/melohealth.jpg" alt="Melo Health Logo" class="h-12">
@@ -37,16 +37,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
     <div class="hidden md:flex space-x-8">
         <a href="<?php echo $base_path; ?>index.php" class="text-gray-800 hover:text-green-600 font-medium">Beranda</a>
         <a href="<?php echo $base_path; ?>tentang.php" class="text-gray-800 hover:text-green-600 font-medium">Tentang</a>
-        <div class="relative group">
-            <button class="text-gray-800 hover:text-green-600 font-medium flex items-center">
-                Layanan <i class="fas fa-chevron-down ml-1"></i>
-            </button>
-            <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-md py-2 w-48 z-50">
-                <a href="<?php echo $base_path; ?>poli/poli-gigi.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
-                <a href="<?php echo $base_path; ?>poli/poli-gizi.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
-                <a href="<?php echo $base_path; ?>poli/poli-umum.php" class="block px-4 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-            </div>
-        </div>
+        <a href="<?php echo $base_path; ?>layanan.php" class="text-gray-800 hover:text-green-600 font-medium">Layanan</a>
         <a href="<?php echo $base_path; ?>berita.php" class="text-gray-800 hover:text-green-600 font-medium">Berita</a>
     </div>
 
@@ -75,22 +66,18 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
         <?php endif; ?>
 
         <!-- Mobile menu button -->
-        <button id="hamburger-menu-btn" class="text-gray-800 ml-4 md:hidden lg:hidden xl:hidden 2xl:hidden" onclick="toggleMobileMenu(event)" style="cursor: pointer; user-select: none; position: relative; z-index: 9999;">
+        <button id="hamburger-menu-btn" class="text-gray-800 ml-4 md:hidden lg:hidden xl:hidden 2xl:hidden relative z-[9999]" onclick="toggleMobileMenu(event)" style="cursor: pointer; user-select: none;">
             <i class="fas fa-bars text-2xl"></i>
         </button>
     </div>
 </nav>
 
 <!-- Mobile Menu -->
-<div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-50" style="top: 100%;">
+<div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full z-[9998]" style="top: 100%;">
     <div class="px-2 pt-2 pb-3 space-y-1">
         <a href="<?php echo $base_path; ?>index.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Beranda</a>
         <a href="<?php echo $base_path; ?>tentang.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Tentang</a>
-        <div class="pl-3 border-l-2 border-green-500">
-            <a href="<?php echo $base_path; ?>poli/poli-gigi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gigi</a>
-            <a href="<?php echo $base_path; ?>poli/poli-gizi.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Gizi</a>
-            <a href="<?php echo $base_path; ?>poli/poli-umum.php" class="block px-3 py-2 text-gray-800 hover:bg-green-100">Poli Umum</a>
-        </div>
+        <a href="<?php echo $base_path; ?>layanan.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Layanan</a>
         <a href="<?php echo $base_path; ?>berita.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Berita</a>
         <?php if ($isLoggedIn && $userConfirmed): ?>
             <a href="<?php echo $base_path; ?>user/profile.php" class="block px-3 py-2 rounded-md text-gray-800 hover:bg-green-100">Profile</a>
@@ -104,7 +91,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
 </div>
 
 <!-- Scroll to Top Button -->
-<div id="scrollToTop" class="fixed bottom-8 right-8 z-50" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
+<div id="scrollToTop" class="fixed bottom-8 right-8 z-[9996]" style="opacity: 0; pointer-events: none; transition: opacity 0.3s ease;">
     <button onclick="scrollToTop()" class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg">
         <i class="fas fa-arrow-up text-lg"></i>
     </button>
@@ -126,7 +113,7 @@ $isAdminLoggedIn = isset($_SESSION['admin_id']);
                 mobileMenu.style.top = '4rem';
                 mobileMenu.style.left = '0';
                 mobileMenu.style.right = '0';
-                mobileMenu.style.zIndex = '40';
+                mobileMenu.style.zIndex = '9998';
             } else {
                 mobileMenu.classList.add('hidden');
                 mobileMenu.style.display = 'none';

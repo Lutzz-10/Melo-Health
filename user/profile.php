@@ -302,10 +302,7 @@ $csrf_token = generateCSRFToken();
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
-                        <li><a href="../poli/poli-gigi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gigi</a></li>
-                        <li><a href="../poli/poli-gizi.php" class="text-gray-400 hover:text-white transition duration-300">Poli Gizi</a></li>
-                        <li><a href="../poli/poli-umum.php" class="text-gray-400 hover:text-white transition duration-300">Poli Umum</a></li>
-                        <li><a href="../poli/ugd.php" class="text-gray-400 hover:text-white transition duration-300">Unit Gawat Darurat</a></li>
+                        <li><a href="../layanan.php" class="text-gray-400 hover:text-white transition duration-300">Layanan</a></li>
                     </ul>
                 </div>
                 

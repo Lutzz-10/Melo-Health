@@ -9,30 +9,135 @@ if (!isAdminLoggedIn()) {
     exit();
 }
 
-// Get selected poli filter
-$selected_poli = isset($_GET['poli']) ? (int)$_GET['poli'] : 'all';
+// Pagination configuration
+$items_per_page = 8;
+$current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$current_page = max(1, $current_page); // Ensure page is at least 1
+$offset = ($current_page - 1) * $items_per_page;
 
-// Get today's queues based on filter
-if ($selected_poli === 'all') {
-    $stmt = $pdo->prepare("
-        SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
-        FROM antrian a
-        JOIN poli p ON a.poli_id = p.id
-        JOIN users u ON a.user_id = u.id
-        WHERE a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
-        ORDER BY a.id ASC
-    ");
-    $stmt->execute();
+// Get selected poli filter
+$selected_poli = isset($_GET['poli']) ? $_GET['poli'] : 'all';
+
+// Ensure $selected_poli is either 'all' or a valid integer
+// Only cast to integer if it's not the 'all' keyword
+if ($selected_poli !== 'all' && $selected_poli !== '') {
+    $selected_poli = (int)$selected_poli;
 } else {
-    $stmt = $pdo->prepare("
-        SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
-        FROM antrian a
-        JOIN poli p ON a.poli_id = p.id
-        JOIN users u ON a.user_id = u.id
-        WHERE a.poli_id = ? AND a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
-        ORDER BY a.id ASC
-    ");
-    $stmt->execute([$selected_poli]);
+    $selected_poli = 'all';
+}
+
+// Get search NIK parameter
+$search_nik = isset($_GET['search_nik']) ? trim($_GET['search_nik']) : '';
+
+// Query untuk menghitung total antrian berdasarkan filter dan search
+if ($selected_poli === 'all') {
+    if (!empty($search_nik)) {
+        $count_stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.tanggal_antrian = CURDATE() AND a.status = 'menunggu' AND u.nik LIKE ?
+        ");
+        $search_param = '%' . $search_nik . '%';
+        $count_stmt->execute([$search_param]);
+    } else {
+        $count_stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
+        ");
+        $count_stmt->execute();
+    }
+} else {
+    if (!empty($search_nik)) {
+        $count_stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.poli_id = ? AND a.tanggal_antrian = CURDATE() AND a.status = 'menunggu' AND u.nik LIKE ?
+        ");
+        $search_param = '%' . $search_nik . '%';
+        $count_stmt->execute([$selected_poli, $search_param]);
+    } else {
+        $count_stmt = $pdo->prepare("
+            SELECT COUNT(*)
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.poli_id = ? AND a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
+        ");
+        $count_stmt->execute([$selected_poli]);
+    }
+}
+
+$total_items = $count_stmt->fetchColumn();
+$total_pages = ceil($total_items / $items_per_page);
+
+// Get today's queues based on filter, search, and pagination
+if ($selected_poli === 'all') {
+    if (!empty($search_nik)) {
+        // Search by NIK with pagination
+        $stmt = $pdo->prepare("
+            SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.tanggal_antrian = CURDATE() AND a.status = 'menunggu' AND u.nik LIKE ?
+            ORDER BY a.id ASC
+            LIMIT :limit OFFSET :offset
+        ");
+        $search_param = '%' . $search_nik . '%';
+        $stmt->bindValue(':limit', $items_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute([$search_param]);
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
+            ORDER BY a.id ASC
+            LIMIT :limit OFFSET :offset
+        ");
+        $stmt->bindValue(':limit', $items_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+} else {
+    if (!empty($search_nik)) {
+        // Search by NIK with poli filter and pagination
+        $stmt = $pdo->prepare("
+            SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.poli_id = ? AND a.tanggal_antrian = CURDATE() AND a.status = 'menunggu' AND u.nik LIKE ?
+            ORDER BY a.id ASC
+            LIMIT :limit OFFSET :offset
+        ");
+        $search_param = '%' . $search_nik . '%';
+        $stmt->bindValue(':limit', $items_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute([$selected_poli, $search_param]);
+    } else {
+        $stmt = $pdo->prepare("
+            SELECT a.*, p.nama_poli, u.nama as user_nama, u.nik
+            FROM antrian a
+            JOIN poli p ON a.poli_id = p.id
+            JOIN users u ON a.user_id = u.id
+            WHERE a.poli_id = ? AND a.tanggal_antrian = CURDATE() AND a.status = 'menunggu'
+            ORDER BY a.id ASC
+            LIMIT :limit OFFSET :offset
+        ");
+        $stmt->bindValue(':limit', $items_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute([$selected_poli]);
+    }
 }
 
 $today_queues = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -145,6 +250,11 @@ $csrf_token = generateCSRFToken();
                         </a>
                     </li>
                     <li>
+                        <a href="poli_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-clinic-medical mr-3"></i>Manajemen Poli
+                        </a>
+                    </li>
+                    <li>
                         <a href="admin_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
                             <i class="fas fa-user-cog mr-3"></i>Manajemen Admin
                         </a>
@@ -172,19 +282,27 @@ $csrf_token = generateCSRFToken();
                 </div>
             <?php endif; ?>
 
-            <!-- Filter Section -->
+            <!-- Filter and Search Section -->
             <div class="bg-white rounded-lg shadow p-6 mb-6">
                 <div class="flex flex-wrap items-center">
                     <div class="w-full md:w-auto mb-4 md:mb-0 md:mr-4">
                         <label for="poli_filter" class="block text-sm font-medium text-gray-700 mb-1">Filter Poli</label>
-                        <select id="poli_filter" onchange="location = this.value;" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="?poli=all" <?php echo $selected_poli === 'all' ? ' selected' : ''; ?>>Semua Poli</option>
+                        <select id="poli_filter" onchange="filterByPoli()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="all" <?php echo $selected_poli === 'all' ? ' selected' : ''; ?>>Semua Poli</option>
                             <?php foreach ($poli_list as $poli): ?>
-                                <option value="?poli=<?php echo $poli['id']; ?>" <?php echo $selected_poli == $poli['id'] ? ' selected' : ''; ?>>
+                                <option value="<?php echo $poli['id']; ?>" <?php echo $selected_poli == $poli['id'] ? ' selected' : ''; ?>>
                                     <?php echo ucfirst(str_replace('_', ' ', $poli['nama_poli'])); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                    </div>
+
+                    <div class="w-full md:w-auto mb-4 md:mb-0 md:mr-4">
+                        <label for="search_nik" class="block text-sm font-medium text-gray-700 mb-1">Cari Berdasarkan NIK</label>
+                        <div class="flex">
+                            <input type="text" id="search_nik" placeholder="Masukkan NIK" class="px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500 w-64" value="<?php echo isset($_GET['search_nik']) ? htmlspecialchars($_GET['search_nik']) : ''; ?>">
+                            <button onclick="searchByNIK()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-r-lg">Cari</button>
+                        </div>
                     </div>
 
                     <div class="w-full md:w-auto">
@@ -281,6 +399,81 @@ $csrf_token = generateCSRFToken();
                 </div>
             </div>
         </div>
+
+        <!-- Pagination -->
+        <?php if ($total_pages > 1): ?>
+        <div class="mt-8">
+            <nav class="flex items-center justify-between">
+                <div class="flex-1 flex items-center">
+                    <span class="text-sm text-gray-700">
+                        Menampilkan
+                        <span class="font-medium"><?php echo $offset + 1; ?></span>
+                        hingga
+                        <span class="font-medium"><?php echo min($offset + $items_per_page, $total_items); ?></span>
+                        dari
+                        <span class="font-medium"><?php echo $total_items; ?></span>
+                        antrian
+                    </span>
+                </div>
+                <div class="flex space-x-2">
+                    <?php if ($current_page > 1): ?>
+                        <a href="?page=<?php echo $current_page - 1; ?>&poli=<?php echo $selected_poli; ?><?php echo !empty($search_nik) ? '&search_nik=' . urlencode($search_nik) : ''; ?>"
+                           class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                            Sebelumnya
+                        </a>
+                    <?php else: ?>
+                        <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-md cursor-not-allowed">Sebelumnya</span>
+                    <?php endif; ?>
+
+                    <!-- Page numbers -->
+                    <?php
+                    $start = max(1, $current_page - 2);
+                    $end = min($total_pages, $current_page + 2);
+                    ?>
+
+                    <?php if ($start > 1): ?>
+                        <a href="?page=1&poli=<?php echo $selected_poli; ?><?php echo !empty($search_nik) ? '&search_nik=' . urlencode($search_nik) : ''; ?>"
+                           class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                            1
+                        </a>
+                        <?php if ($start > 2): ?>
+                            <span class="px-3 py-2 text-gray-500">...</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php for ($i = $start; $i <= $end; $i++): ?>
+                        <?php if ($i == $current_page): ?>
+                            <span class="px-3 py-2 bg-green-600 text-white rounded-md"><?php echo $i; ?></span>
+                        <?php else: ?>
+                            <a href="?page=<?php echo $i; ?>&poli=<?php echo $selected_poli; ?><?php echo !empty($search_nik) ? '&search_nik=' . urlencode($search_nik) : ''; ?>"
+                               class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                                <?php echo $i; ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+
+                    <?php if ($end < $total_pages): ?>
+                        <?php if ($end < $total_pages - 1): ?>
+                            <span class="px-3 py-2 text-gray-500">...</span>
+                        <?php endif; ?>
+                        <a href="?page=<?php echo $total_pages; ?>&poli=<?php echo $selected_poli; ?><?php echo !empty($search_nik) ? '&search_nik=' . urlencode($search_nik) : ''; ?>"
+                           class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                            <?php echo $total_pages; ?>
+                        </a>
+                    <?php endif; ?>
+
+                    <?php if ($current_page < $total_pages): ?>
+                        <a href="?page=<?php echo $current_page + 1; ?>&poli=<?php echo $selected_poli; ?><?php echo !empty($search_nik) ? '&search_nik=' . urlencode($search_nik) : ''; ?>"
+                           class="px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                            Berikutnya
+                        </a>
+                    <?php else: ?>
+                        <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-md cursor-not-allowed">Berikutnya</span>
+                    <?php endif; ?>
+                </div>
+            </nav>
+        </div>
+        <?php endif; ?>
     </div>
 
     <!-- JavaScript -->
@@ -329,6 +522,66 @@ $csrf_token = generateCSRFToken();
                 if (closeSidebarButton) {
                     closeSidebarButton.addEventListener('click', closeSidebar);
                 }
+            }
+        });
+
+        // Function to search by NIK
+        function searchByNIK() {
+            const searchNik = document.getElementById('search_nik').value;
+            const poliFilter = document.getElementById('poli_filter').value;
+
+            // Parse the current URL to maintain other parameters
+            const url = new URL(window.location.href);
+
+            // Update search parameter
+            if (searchNik) {
+                url.searchParams.set('search_nik', searchNik);
+            } else {
+                url.searchParams.delete('search_nik');
+            }
+
+            // If we're not on the 'all' poli view, preserve the poli filter
+            if (!poliFilter.includes('poli=all')) {
+                // Extract poli parameter from the dropdown value
+                const params = new URLSearchParams(poliFilter.split('?')[1]);
+                const selectedPoli = params.get('poli');
+                if (selectedPoli) {
+                    url.searchParams.set('poli', selectedPoli);
+                }
+            } else {
+                url.searchParams.set('poli', 'all');
+            }
+
+            // Redirect to the new URL
+            window.location.href = url.toString();
+        }
+
+        // Function to filter by poli while maintaining search parameters
+        function filterByPoli() {
+            const selectedPoli = document.getElementById('poli_filter').value;
+            const searchNik = document.getElementById('search_nik').value;
+
+            // Build URL with both poli and search parameters
+            let url = '?poli=';
+
+            // If 'all' option is selected (value is 'all'), use 'all', otherwise use the poli ID
+            if (selectedPoli === 'all' || selectedPoli === '') {
+                url += 'all';
+            } else {
+                url += selectedPoli;
+            }
+
+            if (searchNik) {
+                url += '&search_nik=' + encodeURIComponent(searchNik);
+            }
+
+            window.location.href = url;
+        }
+
+        // Allow searching by pressing Enter in the NIK input field
+        document.getElementById('search_nik').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchByNIK();
             }
         });
     </script>

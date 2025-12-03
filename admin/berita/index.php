@@ -92,6 +92,11 @@ if ($action === 'hapus' && isset($_GET['id'])) {
                         </a>
                     </li>
                     <li>
+                        <a href="../poli_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                            <i class="fas fa-clinic-medical mr-3"></i>Manajemen Poli
+                        </a>
+                    </li>
+                    <li>
                         <a href="../admin_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
                             <i class="fas fa-user-cog mr-3"></i>Manajemen Admin
                         </a>

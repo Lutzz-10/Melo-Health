@@ -206,9 +206,7 @@ require_once 'includes/functions.php';
                 <div>
                     <h4 class="text-lg font-bold mb-4">Layanan</h4>
                     <ul class="space-y-2">
-                        <li><a href="poli/poli-gigi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gigi</a></li>
-                        <li><a href="poli/poli-gizi.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Gizi</a></li>
-                        <li><a href="poli/poli-umum.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Poli Umum</a></li>
+                        <li><a href="layanan.php" class="text-gray-400 hover:text-white hover:translate-x-1 transition-all duration-500 ease-in-out">Layanan</a></li>
                     </ul>
                 </div>
 

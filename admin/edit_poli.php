@@ -2,6 +2,7 @@
 session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
+require_once '../includes/security.php';
 
 // Check if admin is logged in
 if (!isAdminLoggedIn()) {
@@ -9,38 +10,61 @@ if (!isAdminLoggedIn()) {
     exit();
 }
 
-// Get statistics
-$stmt = $pdo->query("SELECT COUNT(*) as total FROM users");
-$total_users = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+$error = '';
+$success = '';
+$poli = null;
 
-$stmt = $pdo->query("SELECT COUNT(*) as pending FROM users WHERE status_konfirmasi = 'pending'");
-$pending_users = $stmt->fetch(PDO::FETCH_ASSOC)['pending'];
+// Get poli ID from GET parameter
+$poli_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$stmt = $pdo->query("SELECT COUNT(*) as total_berita FROM berita");
-$total_berita = $stmt->fetch(PDO::FETCH_ASSOC)['total_berita'];
-
-// Get today's queues by poli
-$today = date('Y-m-d');
-$stmt = $pdo->prepare("
-    SELECT p.nama_poli, COUNT(a.id) as jumlah_antrian 
-    FROM antrian a 
-    JOIN poli p ON a.poli_id = p.id 
-    WHERE a.tanggal_antrian = ? AND a.status = 'menunggu'
-    GROUP BY p.id, p.nama_poli
-");
-$stmt->execute([$today]);
-$today_queues = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Initialize counts for all poli
-$poli_counts = [
-    'poli_gigi' => 0,
-    'poli_gizi' => 0,
-    'poli_umum' => 0
-];
-
-foreach ($today_queues as $queue) {
-    $poli_counts[$queue['nama_poli']] = $queue['jumlah_antrian'];
+if ($poli_id <= 0) {
+    header("Location: poli_management.php");
+    exit();
 }
+
+// Get poli data
+$stmt = $pdo->prepare("SELECT * FROM poli WHERE id = ?");
+$stmt->execute([$poli_id]);
+$poli = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$poli) {
+    header("Location: poli_management.php");
+    exit();
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // CSRF protection
+    if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+        $error = 'CSRF token validation failed';
+    } else {
+        $tipe_layanan = sanitizeInput($_POST['tipe_layanan']);
+        $informasi_umum = sanitizeInput($_POST['informasi_umum']);
+
+        // Validate inputs
+        if (empty($tipe_layanan) || empty($informasi_umum)) {
+            $error = "Semua field harus diisi.";
+        } else {
+            // Update poli
+            $stmt = $pdo->prepare("UPDATE poli SET tipe_layanan = ?, informasi_umum = ? WHERE id = ?");
+            $result = $stmt->execute([$tipe_layanan, $informasi_umum, $poli_id]);
+
+            if ($result) {
+                $success = "Poli berhasil diperbarui.";
+                
+                // Refresh poli data
+                $stmt = $pdo->prepare("SELECT * FROM poli WHERE id = ?");
+                $stmt->execute([$poli_id]);
+                $poli = $stmt->fetch(PDO::FETCH_ASSOC);
+            } else {
+                $error = "Gagal memperbarui poli.";
+            }
+        }
+    }
+}
+
+// Generate CSRF token for the form
+$csrf_token = generateCSRFToken();
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +72,7 @@ foreach ($today_queues as $queue) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Melo Health</title>
+    <title>Edit Poli - Admin Panel</title>
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="../assets/images/melohealth.jpg">
     <!-- Tailwind CSS -->
@@ -92,7 +116,7 @@ foreach ($today_queues as $queue) {
                 </div>
                 <ul class="space-y-2">
                     <li>
-                        <a href="dashboard.php" class="block px-4 py-2 text-green-600 font-medium bg-green-50 rounded-md">
+                        <a href="dashboard.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
                             <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
                         </a>
                     </li>
@@ -112,7 +136,7 @@ foreach ($today_queues as $queue) {
                         </a>
                     </li>
                     <li>
-                        <a href="poli_management.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                        <a href="poli_management.php" class="block px-4 py-2 text-green-600 font-medium bg-green-50 rounded-md">
                             <i class="fas fa-clinic-medical mr-3"></i>Manajemen Poli
                         </a>
                     </li>
@@ -130,111 +154,57 @@ foreach ($today_queues as $queue) {
 
         <!-- Main Content -->
         <div class="flex-1 p-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-8">Dashboard Admin</h1>
-            
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="bg-green-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-users text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Total Pengguna</p>
-                            <p class="text-2xl font-bold"><?php echo $total_users; ?></p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="bg-yellow-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-user-clock text-yellow-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Belum Dikonfirmasi</p>
-                            <p class="text-2xl font-bold"><?php echo $pending_users; ?></p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="bg-blue-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-newspaper text-blue-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Total Berita</p>
-                            <p class="text-2xl font-bold"><?php echo $total_berita; ?></p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex items-center">
-                        <div class="bg-purple-100 p-3 rounded-full mr-4">
-                            <i class="fas fa-list-ol text-purple-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-gray-500">Antrian Hari Ini</p>
-                            <p class="text-2xl font-bold">
-                                <?php 
-                                $total_today = array_sum($poli_counts);
-                                echo $total_today; 
-                                ?>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Edit Poli</h1>
 
-            <!-- Recent Activities -->
+            <?php if (!empty($error)): ?>
+                <div class="mb-6 p-3 bg-red-100 text-red-700 rounded-lg">
+                    <?php echo $error; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($success)): ?>
+                <div class="mb-6 p-3 bg-green-100 text-green-700 rounded-lg">
+                    <?php echo $success; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Aktivitas Terbaru</h2>
-                <ul class="space-y-3">
-                    <li class="flex items-center border-b pb-3">
-                        <div class="bg-green-100 p-2 rounded-full mr-3">
-                            <i class="fas fa-user-plus text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">Pengguna baru mendaftar</p>
-                            <p class="text-sm text-gray-500">5 menit yang lalu</p>
-                        </div>
-                    </li>
-                    <li class="flex items-center border-b pb-3">
-                        <div class="bg-blue-100 p-2 rounded-full mr-3">
-                            <i class="fas fa-newspaper text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">Berita baru diterbitkan</p>
-                            <p class="text-sm text-gray-500">1 jam yang lalu</p>
-                        </div>
-                    </li>
-                    <li class="flex items-center border-b pb-3">
-                        <div class="bg-purple-100 p-2 rounded-full mr-3">
-                            <i class="fas fa-list-ol text-purple-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">Antrian baru diambil</p>
-                            <p class="text-sm text-gray-500">2 jam yang lalu</p>
-                        </div>
-                    </li>
-                    <li class="flex items-center">
-                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
-                            <i class="fas fa-user-check text-yellow-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium">Pengguna dikonfirmasi</p>
-                            <p class="text-sm text-gray-500">3 jam yang lalu</p>
-                        </div>
-                    </li>
-                </ul>
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Edit Poli: <?php echo ucfirst(str_replace('_', ' ', $poli['nama_poli'])); ?></h2>
+
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
+                    <input type="hidden" name="poli_id" value="<?php echo $poli['id']; ?>">
+
+                    <div class="mb-6">
+                        <label for="nama_poli" class="block text-gray-700 font-medium mb-2">Nama Poli</label>
+                        <input type="text" id="nama_poli" name="nama_poli" class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" value="<?php echo htmlspecialchars(ucfirst(str_replace('_', ' ', $poli['nama_poli']))); ?>" readonly>
+                        <p class="text-sm text-gray-500 mt-1">Nama poli tidak dapat diubah</p>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="tipe_layanan" class="block text-gray-700 font-medium mb-2">Tipe Layanan</label>
+                        <textarea id="tipe_layanan" name="tipe_layanan" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required><?php echo htmlspecialchars($poli['tipe_layanan']); ?></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label for="informasi_umum" class="block text-gray-700 font-medium mb-2">Informasi Umum</label>
+                        <textarea id="informasi_umum" name="informasi_umum" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required><?php echo htmlspecialchars($poli['informasi_umum']); ?></textarea>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">
+                            Simpan Perubahan
+                        </button>
+
+                        <a href="poli_management.php" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-md transition duration-300 inline-block">
+                            Kembali
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-    
+
     <!-- JavaScript -->
     <script src="../assets/js/script.js"></script>
     <script>
